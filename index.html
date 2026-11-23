@@ -362,9 +362,9 @@
     const color = getComboColor(type);
     html += `<div class="trend-item ${color}">${type}</div>`;
   });
-  // 空出第7行（10个空白格子）
+  // 最后一行：10个白色圆球
   for (let i = 0; i < 10; i++) {
-    html += `<div class="trend-item" style="background:#eee; color:#ccc;">?</div>`;
+    html += `<div class="trend-item" style="background:#ffffff; border:1px solid #ddd; color:#ccc;"></div>`;
   }
   html += '</div>';
   return html;
