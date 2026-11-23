@@ -14,7 +14,7 @@
     .main-menu { padding: 20px; }
     .level-card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); cursor: pointer; }
     .level-card.disabled { opacity: 0.55; cursor: not-allowed; }
-    .icon-box { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+    .icon-box { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
     .icon-beginner { background: #e8f5e9; }
     .icon-intermediate { background: #fff3e0; }
     .icon-advanced { background: #fce4ec; }
@@ -25,8 +25,7 @@
     .content.active { display: block; }
     .back-btn { margin-bottom: 12px; padding: 10px 18px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 15px; }
     .pattern-item { background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 10px; cursor: pointer; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
-    .pattern-item:active { background: #eee; }
-    .no-pattern { text-align: center; color: #999; padding: 40px 0; font-size: 16px; }
+    .no-pattern { text-align: center; color: #999; padding: 40px 0; }
     .trend-item { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; color: white; }
     .red { background: #e74c3c; }
     .blue { background: #3498db; }
@@ -64,13 +63,11 @@
     </div>
   </div>
 
-  <!-- 初级学堂 -->
   <div id="beginner" class="content">
     <button class="back-btn" onclick="backToMenu()">← 返回主界面</button>
     <div id="pattern-list"></div>
   </div>
 
-  <!-- 中级学堂 -->
   <div id="intermediate" class="content">
     <button class="back-btn" onclick="backToMenu()">← 返回主界面</button>
     <div id="intermediate-list"></div>
@@ -82,8 +79,11 @@
     tg.expand();
 
     function openCommunity() {
-      if (tg.openTelegramLink) tg.openTelegramLink('https://t.me/ooxxyx');
-      else window.open('https://t.me/ooxxyx', '_blank');
+      if (window.Telegram && Telegram.WebApp.openTelegramLink) {
+        Telegram.WebApp.openTelegramLink('https://t.me/ooxxyx');
+      } else {
+        window.open('https://t.me/ooxxyx', '_blank');
+      }
     }
 
     let draws = [];
@@ -128,7 +128,7 @@
 
     function renderIntermediateList() {
       const list = document.getElementById('intermediate-list');
-      list.innerHTML = intermediateItems.map(item => 
+      list.innerHTML = intermediateItems.map(item =>
         `<div class="pattern-item" onclick="openIntermediateItem('${item.id}')">${item.name} <span>›</span></div>`
       ).join('');
     }
@@ -137,7 +137,7 @@
       const items = document.querySelectorAll('#intermediate-list .pattern-item');
       let target = null;
       items.forEach(item => {
-        if (item.getAttribute('onclick')?.includes(id)) target = item;
+        if (item.onclick && item.onclick.toString().includes(id)) target = item;
       });
       if (!target) return;
 
@@ -146,19 +146,18 @@
         next.remove();
         return;
       }
-
       document.querySelectorAll('.inline-result').forEach(el => el.remove());
 
-      const resultDiv = document.createElement('div');
-      resultDiv.className = 'inline-result';
-      resultDiv.style.cssText = 'margin:8px 0 16px 0;padding:12px;background:#f8f9fa;border-radius:12px;';
-      resultDiv.innerHTML = '<div class="no-pattern">功能开发中，敬请期待</div>';
-      target.after(resultDiv);
+      const div = document.createElement('div');
+      div.className = 'inline-result';
+      div.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
+      div.innerHTML = '<div class="no-pattern">功能开发中，敬请期待</div>';
+      target.after(div);
     }
 
-    // ========== 初级学堂相关函数 ==========
     function renderPatternList() {
       const list = document.getElementById('pattern-list');
+      if (!list) return;
       list.innerHTML = beginnerPatterns.map(p => {
         const matched = isPatternMatched(p.id);
         const badge = matched ? '<span style="color:#e74c3c;font-size:13px;margin-left:8px;">一条发财路未读</span>' : '';
@@ -189,7 +188,7 @@
           draws = json.data.items.slice().reverse();
           renderPatternList();
         }
-      } catch (e) {}
+      } catch (e) { console.error(e); }
     }
 
     function getRecent(n = 20) { return draws.slice(-n); }
@@ -198,13 +197,12 @@
       const items = document.querySelectorAll('#pattern-list .pattern-item');
       let targetItem = null;
       items.forEach(item => {
-        if (item.getAttribute('onclick')?.includes(`'${id}'`)) targetItem = item;
+        if (item.onclick && item.onclick.toString().includes(id)) targetItem = item;
       });
       if (!targetItem) return;
 
       const next = targetItem.nextElementSibling;
-      if (next?.classList.contains('inline-result')) { next.remove(); return; }
-
+      if (next && next.classList.contains('inline-result')) { next.remove(); return; }
       document.querySelectorAll('.inline-result').forEach(el => el.remove());
 
       const recent = getRecent(30);
@@ -223,7 +221,7 @@
 
       const resultDiv = document.createElement('div');
       resultDiv.className = 'inline-result';
-      resultDiv.style.cssText = 'margin:8px 0 16px 0;padding:12px;background:#f8f9fa;border-radius:12px;';
+      resultDiv.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
       resultDiv.innerHTML = matched
         ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近20期走势</div>' + renderTrend(displayData)
         : '<div class="no-pattern">暂时无此规律</div>';
@@ -249,7 +247,7 @@
         const groups = [];
         let prev = null, cnt = 0;
         for (const d of last) {
-          const v = d[key];
+          const v = !!d[key];
           if (v === prev) cnt++;
           else { if (prev !== null) groups.push(cnt); prev = v; cnt = 1; }
         }
@@ -263,11 +261,12 @@
     function isDragon(arr, count) {
       if (arr.length < count) return false;
       const last = arr[arr.length - 1];
-      let bs = 1, oe = 1;
+      let bs = 1;
       for (let i = arr.length - 2; i >= 0; i--) {
         if (arr[i].big === last.big) bs++; else break;
       }
       if (bs >= count) return true;
+      let oe = 1;
       for (let i = arr.length - 2; i >= 0; i--) {
         if (arr[i].odd === last.odd) oe++; else break;
       }
@@ -283,7 +282,7 @@
         if (!currentCol.length || currentCol[0].isBig === isBig) {
           currentCol.push({ label: isBig ? '大' : '小', color: isBig ? 'red' : 'blue', isBig });
         } else {
-          columns.push(currentCol);
+          columns.push([...currentCol]);
           currentCol = [{ label: isBig ? '大' : '小', color: isBig ? 'red' : 'blue', isBig }];
         }
       });
@@ -299,8 +298,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
