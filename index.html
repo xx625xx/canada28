@@ -248,18 +248,28 @@
 }
 
     function isHouseHall(arr, house, hall) {
-      if (arr.length < house + hall) return false;
-      const last = arr.slice(-(house + hall));
-      // 检查大小
-      const bigs = last.filter(d => d.big).length;
-      const smalls = last.length - bigs;
-      if ((bigs === house && smalls === hall) || (smalls === house && bigs === hall)) return true;
-      // 检查单双
-      const odds = last.filter(d => d.odd).length;
-      const evens = last.length - odds;
-      if ((odds === house && evens === hall) || (evens === house && odds === hall)) return true;
-      return false;
-    }
+  const need = (house + hall) * 2; // 两个回合
+  if (arr.length < need) return false;
+  const last = arr.slice(-need);
+  
+  // 检查大小是否构成两个回合
+  let bigCount = 0, smallCount = 0;
+  for (let d of last) {
+    if (d.big) bigCount++; else smallCount++;
+  }
+  const sizeOk = (bigCount === house * 2 && smallCount === hall * 2) || 
+                 (smallCount === house * 2 && bigCount === hall * 2);
+  
+  // 检查单双是否构成两个回合
+  let oddCount = 0, evenCount = 0;
+  for (let d of last) {
+    if (d.odd) oddCount++; else evenCount++;
+  }
+  const oddOk = (oddCount === house * 2 && evenCount === hall * 2) || 
+                (evenCount === house * 2 && oddCount === hall * 2);
+  
+  return sizeOk || oddOk;
+}
 
  function isDragon(arr, count) {
   if (arr.length < count) return false;
