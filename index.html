@@ -281,32 +281,27 @@ function isPatternMatched(id) {
 }
 
 
-   function isFrogJump(arr) {
+  function isFrogJump(arr) {
   if (arr.length < 4) return false;
-  const last = arr.slice(-8); // 多取一些期数检查两个回合
-  
-  // 检查大小跳两个回合
-  let bigJumpRounds = 0;
+  const last = arr.slice(-6);
+
+  let isBigJump = true;
   for (let i = 1; i < last.length; i++) {
-    if (last[i].big !== last[i-1].big) {
-      bigJumpRounds++;
-    } else {
-      bigJumpRounds = 0;
+    if (last[i].big === last[i - 1].big) {
+      isBigJump = false;
+      break;
     }
-    if (bigJumpRounds >= 3) return true; // 大小大小 需要至少3次变化
   }
-  
-  // 检查单双跳两个回合
-  let oddJumpRounds = 0;
+
+  let isOddJump = true;
   for (let i = 1; i < last.length; i++) {
-    if (last[i].odd !== last[i-1].odd) {
-      oddJumpRounds++;
-    } else {
-      oddJumpRounds = 0;
+    if (last[i].odd === last[i - 1].odd) {
+      isOddJump = false;
+      break;
     }
-    if (oddJumpRounds >= 3) return true;
   }
-  return false;
+
+  return isBigJump || isOddJump;
 }
 
    function isHouseHall(arr, house, hall) {
