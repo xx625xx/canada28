@@ -195,29 +195,47 @@
       return draws.slice(-n);
     }
 
-    function checkPattern(id) {
-      const area = document.getElementById('result-area');
-      area.style.display = 'block';
-      const recent = getRecent(30);
-      let matched = false;
-      let displayData = getRecent(20);
+   function checkPattern(id) {
+  // 先清除所有已显示的结果
+  document.querySelectorAll('.inline-result').forEach(el => el.remove());
 
-      if (id === 'frog') matched = isFrogJump(recent);
-      else if (id === '2f1t') matched = isHouseHall(recent, 2, 1);
-      else if (id === '3f1t') matched = isHouseHall(recent, 3, 1);
-      else if (id === '2f2t') matched = isHouseHall(recent, 2, 2);
-      else if (id === '3f2t') matched = isHouseHall(recent, 3, 2);
-      else if (id === '3f3t') matched = isHouseHall(recent, 3, 3);
-      else if (id === '4dragon') matched = isDragon(recent, 4);
-      else if (id === '5dragon') matched = isDragon(recent, 5);
-      else if (id === '6dragon') matched = isDragon(recent, 6);
+  const recent = getRecent(30);
+  let matched = false;
+  let displayData = getRecent(20);
 
-      if (matched) {
-        area.innerHTML = '<div style="text-align:center;margin-bottom:10px;font-weight:bold;">近20期走势</div>' + renderTrend(displayData);
-      } else {
-        area.innerHTML = '<div class="no-pattern">暂时无此规律</div>';
-      }
+  if (id === 'frog') matched = isFrogJump(recent);
+  else if (id === '2f1t') matched = isHouseHall(recent, 2, 1);
+  else if (id === '3f1t') matched = isHouseHall(recent, 3, 1);
+  else if (id === '2f2t') matched = isHouseHall(recent, 2, 2);
+  else if (id === '3f2t') matched = isHouseHall(recent, 3, 2);
+  else if (id === '3f3t') matched = isHouseHall(recent, 3, 3);
+  else if (id === '4dragon') matched = isDragon(recent, 4);
+  else if (id === '5dragon') matched = isDragon(recent, 5);
+  else if (id === '6dragon') matched = isDragon(recent, 6);
+
+  // 找到被点击的那个看板
+  const items = document.querySelectorAll('.pattern-item');
+  let targetItem = null;
+  items.forEach(item => {
+    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(id)) {
+      targetItem = item;
     }
+  });
+
+  if (!targetItem) return;
+
+  const resultDiv = document.createElement('div');
+  resultDiv.className = 'inline-result';
+  resultDiv.style.cssText = 'margin: 8px 0 16px 0; padding: 12px; background: #f8f9fa; border-radius: 12px;';
+
+  if (matched) {
+    resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近20期走势</div>' + renderTrend(displayData);
+  } else {
+    resultDiv.innerHTML = '<div class="no-pattern">暂时无此规律</div>';
+  }
+
+  targetItem.after(resultDiv);
+}
 
    function isFrogJump(arr) {
   if (arr.length < 4) return false;
