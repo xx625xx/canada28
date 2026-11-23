@@ -125,6 +125,12 @@
     .circle.red { background: #e74c3c; }
     .circle.blue { background: #3498db; }
     .loading { text-align: center; padding: 40px; color: var(--tg-theme-hint-color); }
+    .refresh-tip {
+      text-align: center;
+      font-size: 12px;
+      color: var(--tg-theme-hint-color);
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -138,6 +144,7 @@
 
   <div id="beginner" class="content">
     <button class="back-btn" onclick="backToMenu()">← 返回</button>
+    <div class="refresh-tip">每30秒自动刷新</div>
     <div id="loading" class="loading">正在获取最新开奖数据...</div>
     <div id="beginner-content" style="display:none;">
       <div class="stats">
@@ -167,15 +174,24 @@
     tg.ready();
     tg.expand();
 
+    let refreshTimer = null;
+
     function openLevel(level) {
       document.getElementById('menu').style.display = 'none';
       document.getElementById(level).classList.add('active');
       if (level === 'beginner') {
         loadBeginnerData();
+        // 每30秒自动刷新
+        if (refreshTimer) clearInterval(refreshTimer);
+        refreshTimer = setInterval(loadBeginnerData, 30000);
       }
     }
 
     function backToMenu() {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+      }
       document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
       document.getElementById('menu').style.display = 'flex';
     }
@@ -183,11 +199,14 @@
     async function loadBeginnerData() {
       const loading = document.getElementById('loading');
       const content = document.getElementById('beginner-content');
-      loading.style.display = 'block';
-      content.style.display = 'none';
+      
+      // 只在第一次加载时显示 loading
+      if (content.style.display === 'none') {
+        loading.style.display = 'block';
+      }
 
       try {
-        const res = await fetch('https://pc28.world/api/v1/draws?limit=100');
+        const res = await fetch('https://pc28.world/api/v1/draws?limit=100&t=' + Date.now());
         const json = await res.json();
         if (!json.ok) throw new Error('数据获取失败');
 
