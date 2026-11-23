@@ -26,7 +26,7 @@
     .back-btn { margin-bottom: 12px; padding: 10px 18px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 15px; }
     .pattern-item { background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 10px; cursor: pointer; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
     .no-pattern { text-align: center; color: #999; padding: 40px 0; }
-    .trend-item { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: white; }
+    .trend-item { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: white; flex-shrink: 0; }
     .green { background: #2ecc71; }
     .gray { background: #95a5a6; }
     .red { background: #e74c3c; }
@@ -45,4 +45,324 @@
         <div class="card-info"><h3>初级学堂</h3><p>多种规律看板</p></div>
       </div>
       <div class="level-card" onclick="openLevel('intermediate')">
-        <div class="
+        <div class="icon-box icon-intermediate">🔥</div>
+        <div class="card-info"><h3>中级学堂</h3><p>组合 · 尾数 · 极值 · 形态</p></div>
+      </div>
+      <div class="level-card disabled">
+        <div class="icon-box icon-advanced">👑</div>
+        <div class="card-info"><h3>高级学堂</h3><p>深度数据研究</p></div>
+        <div class="badge">即将开放</div>
+      </div>
+      <div class="level-card disabled">
+        <div class="icon-box" style="background:#e3f2fd;">🎓</div>
+        <div class="card-info"><h3>申请奖学金</h3><p>学习奖励申请</p></div>
+        <div class="badge">即将开放</div>
+      </div>
+      <div class="level-card" onclick="openCommunity()">
+        <div class="icon-box" style="background:#f3e5f5;">💬</div>
+        <div class="card-info"><h3>野寻社区</h3><p>交流讨论区</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="beginner" class="content">
+    <button class="back-btn" onclick="backToMenu()">← 返回主界面</button>
+    <div id="pattern-list"></div>
+  </div>
+
+  <div id="intermediate" class="content">
+    <button class="back-btn" onclick="backToMenu()">← 返回主界面</button>
+    <div id="intermediate-list"></div>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    function openCommunity() {
+      if (tg.openTelegramLink) tg.openTelegramLink('https://t.me/ooxxyx');
+      else window.open('https://t.me/ooxxyx', '_blank');
+    }
+
+    let draws = [];
+    let refreshTimer = null;
+
+    const beginnerPatterns = [
+      { id: 'frog', name: '青蛙跳规律看板' },
+      { id: '2f1t', name: '两房一厅规律看板' },
+      { id: '3f1t', name: '三房一厅规律看板' },
+      { id: '2f2t', name: '两房两厅规律看板' },
+      { id: '3f2t', name: '三房两厅规律看板' },
+      { id: '3f3t', name: '三房三厅规律看板' },
+      { id: '4dragon', name: '四小龙规律看板' },
+      { id: '5dragon', name: '五小龙规律看板' },
+      { id: '6dragon', name: '六长龙规律看板' }
+    ];
+
+    const intermediateItems = [
+      { id: 'combo', name: '组合走势规律研判' },
+      { id: 'tail', name: '和值尾数走势规律研判' },
+      { id: 'extreme', name: '极大极小走势规律研判' },
+      { id: 'shape', name: '对子顺子豹子走势规律研判' }
+    ];
+
+    const comboSubItems = [
+      { id: 'road', name: '路子图' },
+      { id: 'grid', name: '百宫格图' },
+      { id: 'alert', name: '全面走势警报' }
+    ];
+
+    function openLevel(level) {
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById(level).classList.add('active');
+      if (level === 'beginner') {
+        loadData(true);
+        if (refreshTimer) clearInterval(refreshTimer);
+        refreshTimer = setInterval(() => loadData(true), 30000);
+      } else if (level === 'intermediate') {
+        renderIntermediateList();
+        loadData(false);
+      }
+    }
+
+    function backToMenu() {
+      if (refreshTimer) clearInterval(refreshTimer);
+      document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+      document.getElementById('menu').style.display = 'block';
+    }
+
+    function renderIntermediateList() {
+      const list = document.getElementById('intermediate-list');
+      list.innerHTML = intermediateItems.map(item =>
+        `<div class="pattern-item" onclick="openIntermediateItem('${item.id}')">${item.name} <span>›</span></div>`
+      ).join('');
+    }
+
+    function openIntermediateItem(id) {
+      clearInlineResults();
+      const list = document.getElementById('intermediate-list');
+      if (id === 'combo') {
+        list.innerHTML = comboSubItems.map(item =>
+          `<div class="pattern-item" onclick="openComboSub('${item.id}')">${item.name} <span>›</span></div>`
+        ).join('') + `<div class="pattern-item" onclick="renderIntermediateList()" style="background:#eee;">← 返回上一级</div>`;
+      } else {
+        showPlaceholder(list.querySelector(`[onclick*="${id}"]`));
+      }
+    }
+
+    function openComboSub(subId) {
+      clearInlineResults();
+      const items = document.querySelectorAll('#intermediate-list .pattern-item');
+      let target = null;
+      items.forEach(item => {
+        if (item.getAttribute('onclick')?.includes(subId)) target = item;
+      });
+      if (!target) return;
+
+      if (subId === 'road') {
+        const recent = getRecent(30);
+        const resultDiv = document.createElement('div');
+        resultDiv.className = 'inline-result';
+        resultDiv.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
+        resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期组合路子图</div>' + renderComboRoad(recent);
+        target.after(resultDiv);
+      } else {
+        showPlaceholder(target);
+      }
+    }
+
+    function showPlaceholder(target) {
+      if (!target) return;
+      const div = document.createElement('div');
+      div.className = 'inline-result';
+      div.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
+      div.innerHTML = '<div class="no-pattern">功能开发中，敬请期待</div>';
+      target.after(div);
+    }
+
+    function clearInlineResults() {
+      document.querySelectorAll('.inline-result').forEach(el => el.remove());
+    }
+
+    async function loadData(renderBeginner = false) {
+      try {
+        const res = await fetch('https://pc28.world/api/v1/draws?limit=100&_=' + Date.now());
+        const json = await res.json();
+        if (json.ok) {
+          draws = json.data.items.slice().reverse();
+          if (renderBeginner) renderPatternList();
+        }
+      } catch (e) {}
+    }
+
+    function getRecent(n = 30) { return draws.slice(-n); }
+
+    function renderPatternList() {
+      const list = document.getElementById('pattern-list');
+      if (!list) return;
+      list.innerHTML = beginnerPatterns.map(p => {
+        const matched = isPatternMatched(p.id);
+        const badge = matched ? '<span style="color:#e74c3c;font-size:13px;margin-left:8px;">一条发财路未读</span>' : '';
+        return `<div class="pattern-item" onclick="checkPattern('${p.id}')">${p.name}${badge} <span>›</span></div>`;
+      }).join('');
+    }
+
+    function isPatternMatched(id) {
+      if (!draws.length) return false;
+      const recent = getRecent(30);
+      if (id === 'frog') return isFrogJump(recent);
+      if (id === '2f1t') return isHouseHall(recent, 2, 1);
+      if (id === '3f1t') return isHouseHall(recent, 3, 1);
+      if (id === '2f2t') return isHouseHall(recent, 2, 2);
+      if (id === '3f2t') return isHouseHall(recent, 3, 2);
+      if (id === '3f3t') return isHouseHall(recent, 3, 3);
+      if (id === '4dragon') return isDragon(recent, 4);
+      if (id === '5dragon') return isDragon(recent, 5);
+      if (id === '6dragon') return isDragon(recent, 6);
+      return false;
+    }
+
+    function checkPattern(id) {
+      clearInlineResults();
+      const items = document.querySelectorAll('#pattern-list .pattern-item');
+      let targetItem = null;
+      items.forEach(item => {
+        if (item.getAttribute('onclick')?.includes(id)) targetItem = item;
+      });
+      if (!targetItem) return;
+
+      const next = targetItem.nextElementSibling;
+      if (next?.classList.contains('inline-result')) { next.remove(); return; }
+
+      const recent = getRecent(30);
+      let matched = false;
+      const displayData = getRecent(20);
+
+      if (id === 'frog') matched = isFrogJump(recent);
+      else if (id === '2f1t') matched = isHouseHall(recent, 2, 1);
+      else if (id === '3f1t') matched = isHouseHall(recent, 3, 1);
+      else if (id === '2f2t') matched = isHouseHall(recent, 2, 2);
+      else if (id === '3f2t') matched = isHouseHall(recent, 3, 2);
+      else if (id === '3f3t') matched = isHouseHall(recent, 3, 3);
+      else if (id === '4dragon') matched = isDragon(recent, 4);
+      else if (id === '5dragon') matched = isDragon(recent, 5);
+      else if (id === '6dragon') matched = isDragon(recent, 6);
+
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'inline-result';
+      resultDiv.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
+      resultDiv.innerHTML = matched
+        ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近20期走势</div>' + renderTrend(displayData)
+        : '<div class="no-pattern">暂时无此规律</div>';
+      targetItem.after(resultDiv);
+    }
+
+    function isFrogJump(arr) {
+      if (arr.length < 4) return false;
+      const last = arr.slice(-6);
+      let bigJump = true, oddJump = true;
+      for (let i = 1; i < last.length; i++) {
+        if (last[i].big === last[i-1].big) bigJump = false;
+        if (last[i].odd === last[i-1].odd) oddJump = false;
+      }
+      return bigJump || oddJump;
+    }
+
+    function isHouseHall(arr, house, hall) {
+      const need = (house + hall) * 2;
+      if (arr.length < need) return false;
+      const last = arr.slice(-need);
+      function getGroups(key) {
+        const groups = [];
+        let prev = null, cnt = 0;
+        for (const d of last) {
+          const v = !!d[key];
+          if (v === prev) cnt++;
+          else { if (prev !== null) groups.push(cnt); prev = v; cnt = 1; }
+        }
+        if (prev !== null) groups.push(cnt);
+        return groups;
+      }
+      const check = g => g.length === 4 && g[0] === house && g[1] === hall && g[2] === house && g[3] === hall;
+      return check(getGroups('big')) || check(getGroups('odd'));
+    }
+
+    function isDragon(arr, count) {
+      if (arr.length < count) return false;
+      const last = arr[arr.length - 1];
+      let bs = 1;
+      for (let i = arr.length - 2; i >= 0; i--) {
+        if (arr[i].big === last.big) bs++; else break;
+      }
+      if (bs >= count) return true;
+      let oe = 1;
+      for (let i = arr.length - 2; i >= 0; i--) {
+        if (arr[i].odd === last.odd) oe++; else break;
+      }
+      return oe >= count;
+    }
+
+    function renderTrend(arr) {
+      if (!arr.length) return '';
+      const columns = [];
+      let currentCol = [];
+      arr.forEach(d => {
+        const isBig = d.big;
+        if (!currentCol.length || currentCol[0].isBig === isBig) {
+          currentCol.push({ label: isBig ? '大' : '小', color: isBig ? 'red' : 'blue', isBig });
+        } else {
+          columns.push([...currentCol]);
+          currentCol = [{ label: isBig ? '大' : '小', color: isBig ? 'red' : 'blue', isBig }];
+        }
+      });
+      if (currentCol.length) columns.push(currentCol);
+      let html = '<div style="display:flex;overflow-x:auto;gap:4px;padding:8px 0;justify-content:center;">';
+      columns.forEach(col => {
+        html += '<div style="display:flex;flex-direction:column;gap:4px;">';
+        col.forEach(item => html += `<div class="trend-item ${item.color}">${item.label}</div>`);
+        html += '</div>';
+      });
+      return html + '</div>';
+    }
+
+    function renderComboRoad(arr) {
+      if (!arr.length) return '<div class="no-pattern">暂无数据</div>';
+      const columns = [];
+      let currentCol = [];
+      arr.forEach(d => {
+        const type = getComboType(d);
+        if (!currentCol.length || currentCol[0].type === type) {
+          currentCol.push({ label: type, color: getComboColor(type), type });
+        } else {
+          columns.push([...currentCol]);
+          currentCol = [{ label: type, color: getComboColor(type), type }];
+        }
+      });
+      if (currentCol.length) columns.push(currentCol);
+
+      let html = '<div style="display:flex;overflow-x:auto;gap:4px;padding:8px 0;justify-content:center;">';
+      columns.forEach(col => {
+        html += '<div style="display:flex;flex-direction:column;gap:4px;">';
+        col.forEach(item => html += `<div class="trend-item ${item.color}">${item.label}</div>`);
+        html += '</div>';
+      });
+      return html + '</div>';
+    }
+
+    function getComboType(d) {
+      if (d.big && d.odd) return '大单';
+      if (d.big && !d.odd) return '大双';
+      if (!d.big && d.odd) return '小单';
+      return '小双';
+    }
+
+    function getComboColor(type) {
+      if (type === '大单') return 'green';
+      if (type === '小单') return 'gray';
+      if (type === '大双') return 'red';
+      return 'blue';
+    }
+  </script>
+</body>
+</html>
