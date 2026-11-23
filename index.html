@@ -267,13 +267,16 @@
 }
 
 
-    function renderTrend(arr) {
-      return '<div class="trend">' + arr.map(d => {
-        const label = d.big ? '大' : '小';
-        const color = d.big ? 'red' : 'blue';
-        return `<div class="trend-item ${color}">${label}</div>`;
-      }).join('') + '</div>';
-    }
+  function renderTrend(arr) {
+  let html = '<div style="display:flex; flex-direction:column; align-items:center; gap:6px;">';
+  arr.forEach(d => {
+    const label = d.big ? '大' : '小';
+    const color = d.big ? 'red' : 'blue';
+    html += `<div class="trend-item ${color}">${label}</div>`;
+  });
+  html += '</div>';
+  return html;
+}  
   </script>
 </body>
 </html>
