@@ -333,15 +333,34 @@ function isPatternMatched(id) {
 
 
   function renderTrend(arr) {
-  let html = '<div style="display:flex; flex-direction:column; align-items:center; gap:6px;">';
+  if (!arr.length) return '';
+  
+  const columns = [];
+  let currentCol = [];
+  
   arr.forEach(d => {
-    const label = d.big ? '大' : '小';
-    const color = d.big ? 'red' : 'blue';
-    html += `<div class="trend-item ${color}">${label}</div>`;
+    const isBig = d.big;
+    if (currentCol.length === 0 || currentCol[0].isBig === isBig) {
+      currentCol.push({ label: isBig ? '大' : '小', color: isBig ? 'red' : 'blue', isBig });
+    } else {
+      columns.push(currentCol);
+      currentCol = [{ label: isBig ? '大' : '小', color: isBig ? 'red' : 'blue', isBig }];
+    }
+  });
+  if (currentCol.length) columns.push(currentCol);
+
+  let html = '<div style="display:flex; overflow-x:auto; gap:4px; padding:8px 0; justify-content:center;">';
+  columns.forEach(col => {
+    html += '<div style="display:flex; flex-direction:column; gap:4px;">';
+    col.forEach(item => {
+      html += `<div class="trend-item ${item.color}">${item.label}</div>`;
+    });
+    html += '</div>';
   });
   html += '</div>';
   return html;
-}  
+}
+
   </script>
 </body>
 </html>
