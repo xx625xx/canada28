@@ -245,15 +245,27 @@
       return false;
     }
 
-    function isDragon(arr, count) {
-      if (arr.length < count) return false;
-      const last = arr.slice(-count);
-      const allBig = last.every(d => d.big);
-      const allSmall = last.every(d => !d.big);
-      const allOdd = last.every(d => d.odd);
-      const allEven = last.every(d => !d.odd);
-      return allBig || allSmall || allOdd || allEven;
-    }
+ function isDragon(arr, count) {
+  if (arr.length < count) return false;
+  const last = arr[arr.length - 1];
+  
+  // 检查大小连
+  let bigSmallCount = 1;
+  for (let i = arr.length - 2; i >= 0; i--) {
+    if (arr[i].big === last.big) bigSmallCount++;
+    else break;
+  }
+  if (bigSmallCount >= count) return true;
+
+  // 检查单双连
+  let oddEvenCount = 1;
+  for (let i = arr.length - 2; i >= 0; i--) {
+    if (arr[i].odd === last.odd) oddEvenCount++;
+    else break;
+  }
+  return oddEvenCount >= count;
+}
+
 
     function renderTrend(arr) {
       return '<div class="trend">' + arr.map(d => {
