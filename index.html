@@ -219,17 +219,33 @@
       }
     }
 
-    function isFrogJump(arr) {
-      if (arr.length < 4) return false;
-      const last = arr.slice(-6);
-      // 检查大小跳或单双跳
-      let bigJump = true, oddJump = true;
-      for (let i = 1; i < last.length; i++) {
-        if (last[i].big === last[i-1].big) bigJump = false;
-        if (last[i].odd === last[i-1].odd) oddJump = false;
-      }
-      return bigJump || oddJump;
+   function isFrogJump(arr) {
+  if (arr.length < 4) return false;
+  const last = arr.slice(-8); // 多取一些期数检查两个回合
+  
+  // 检查大小跳两个回合
+  let bigJumpRounds = 0;
+  for (let i = 1; i < last.length; i++) {
+    if (last[i].big !== last[i-1].big) {
+      bigJumpRounds++;
+    } else {
+      bigJumpRounds = 0;
     }
+    if (bigJumpRounds >= 3) return true; // 大小大小 需要至少3次变化
+  }
+  
+  // 检查单双跳两个回合
+  let oddJumpRounds = 0;
+  for (let i = 1; i < last.length; i++) {
+    if (last[i].odd !== last[i-1].odd) {
+      oddJumpRounds++;
+    } else {
+      oddJumpRounds = 0;
+    }
+    if (oddJumpRounds >= 3) return true;
+  }
+  return false;
+}
 
     function isHouseHall(arr, house, hall) {
       if (arr.length < house + hall) return false;
