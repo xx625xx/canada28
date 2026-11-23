@@ -157,6 +157,14 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
+    function openCommunity() {
+  const tg = window.Telegram.WebApp;
+  if (tg && tg.openTelegramLink) {
+    tg.openTelegramLink('https://t.me/ooxxyx');
+  } else {
+    window.open('https://t.me/ooxxyx', '_blank');
+  }
+}
 
     let draws = [];
     let refreshTimer = null;
