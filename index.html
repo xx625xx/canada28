@@ -225,42 +225,71 @@
       }
     }
 
-    function checkStreaks(draws) {
-      const alertBox = document.getElementById('alert-box');
-      const alerts = [];
+   
+function playAlertSound() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // 高音
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    
+    oscillator.start();
+    // 响三声
+    setTimeout(() => oscillator.frequency.setValueAtTime(660, audioCtx.currentTime), 200);
+    setTimeout(() => oscillator.frequency.setValueAtTime(880, audioCtx.currentTime), 400);
+    setTimeout(() => {
+      oscillator.stop();
+      audioCtx.close();
+    }, 600);
+  } catch (e) {
+    console.log('无法播放声音', e);
+  }
+}
 
-      // 从最新一期往前算连开
-      const latest = draws[draws.length - 1];
-      
-      // 连大 / 连小
-      let bigSmallStreak = 1;
-      const isBig = latest.big;
-      for (let i = draws.length - 2; i >= 0; i--) {
-        if (draws[i].big === isBig) bigSmallStreak++;
-        else break;
-      }
-      if (bigSmallStreak >= 5) {
-        alerts.push(`已连${isBig ? '大' : '小'} ${bigSmallStreak} 期`);
-      }
+function checkStreaks(draws) {
+  const alertBox = document.getElementById('alert-box');
+  const alerts = [];
 
-      // 连单 / 连双
-      let oddEvenStreak = 1;
-      const isOdd = latest.odd;
-      for (let i = draws.length - 2; i >= 0; i--) {
-        if (draws[i].odd === isOdd) oddEvenStreak++;
-        else break;
-      }
-      if (oddEvenStreak >= 5) {
-        alerts.push(`已连${isOdd ? '单' : '双'} ${oddEvenStreak} 期`);
-      }
+  const latest = draws[draws.length - 1];
+  
+  // 连大 / 连小
+  let bigSmallStreak = 1;
+  const isBig = latest.big;
+  for (let i = draws.length - 2; i >= 0; i--) {
+    if (draws[i].big === isBig) bigSmallStreak++;
+    else break;
+  }
+  if (bigSmallStreak >= 5) {
+    alerts.push(`已连${isBig ? '大' : '小'} ${bigSmallStreak} 期`);
+  }
 
-      if (alerts.length > 0) {
-        alertBox.innerHTML = alerts.join('<br>');
-        alertBox.style.display = 'block';
-      } else {
-        alertBox.style.display = 'none';
-      }
-    }
+  // 连单 / 连双
+  let oddEvenStreak = 1;
+  const isOdd = latest.odd;
+  for (let i = draws.length - 2; i >= 0; i--) {
+    if (draws[i].odd === isOdd) oddEvenStreak++;
+    else break;
+  }
+  if (oddEvenStreak >= 5) {
+    alerts.push(`已连${isOdd ? '单' : '双'} ${oddEvenStreak} 期`);
+  }
+
+  if (alerts.length > 0) {
+    alertBox.innerHTML = alerts.join('<br>');
+    alertBox.style.display = 'block';
+    playAlertSound(); // 播放提示音
+  } else {
+    alertBox.style.display = 'none';
+  }
+}
+```
+
 
     function renderStats(draws) {
       let big = 0, small = 0, odd = 0, even = 0;
