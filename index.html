@@ -69,24 +69,11 @@
       align-items: center;
     }
     .pattern-item:active { background: #eee; }
-    .result-area {
-      margin-top: 16px;
-      padding: 16px;
-      background: #f8f9fa;
-      border-radius: 12px;
-      min-height: 100px;
-    }
     .no-pattern {
       text-align: center;
       color: #999;
       padding: 40px 0;
       font-size: 16px;
-    }
-    .trend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      justify-content: center;
     }
     .trend-item {
       width: 32px; height: 32px; border-radius: 50%;
@@ -95,7 +82,6 @@
     }
     .red { background: #e74c3c; }
     .blue { background: #3498db; }
-    .loading { text-align: center; padding: 40px; color: #999; }
   </style>
 </head>
 <body>
@@ -130,44 +116,40 @@
         <div class="badge">即将开放</div>
       </div>
       <div class="level-card disabled">
-  <div class="icon-box" style="background:#e3f2fd;">🎓</div>
-  <div class="card-info">
-    <h3>申请奖学金</h3>
-    <p>学习奖励申请</p>
+        <div class="icon-box" style="background:#e3f2fd;">🎓</div>
+        <div class="card-info">
+          <h3>申请奖学金</h3>
+          <p>学习奖励申请</p>
+        </div>
+        <div class="badge">即将开放</div>
+      </div>
+      <div class="level-card" onclick="openCommunity()">
+        <div class="icon-box" style="background:#f3e5f5;">💬</div>
+        <div class="card-info">
+          <h3>野寻社区</h3>
+          <p>交流讨论区</p>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="badge">即将开放</div>
-</div>
-
-<div class="level-card" onclick="openCommunity()">
-  <div class="icon-box" style="background:#f3e5f5;">💬</div>
-  <div class="card-info">
-    <h3>野寻社区</h3>
-    <p>交流讨论区</p>
-  </div>
-</div>
-    </div>   <!-- 闭合 main-menu -->
-  </div>     <!-- 闭合 #menu -->
-
-  <div id="beginner" class="content">
 
   <div id="beginner" class="content">
     <button class="back-btn" onclick="backToMenu()">← 返回主界面</button>
     <div id="pattern-list" class="pattern-list"></div>
-    <div id="result-area" class="result-area" style="display:none;"></div>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
+
     function openCommunity() {
-  const tg = window.Telegram.WebApp;
-  if (tg && tg.openTelegramLink) {
-    tg.openTelegramLink('https://t.me/ooxxyx');
-  } else {
-    window.open('https://t.me/ooxxyx', '_blank');
-  }
-}
+      if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink('https://t.me/ooxxyx');
+      } else {
+        window.open('https://t.me/ooxxyx', '_blank');
+      }
+    }
 
     let draws = [];
     let refreshTimer = null;
@@ -188,7 +170,6 @@
       document.getElementById('menu').style.display = 'none';
       document.getElementById(level).classList.add('active');
       if (level === 'beginner') {
-        renderPatternList();
         loadData();
         if (refreshTimer) clearInterval(refreshTimer);
         refreshTimer = setInterval(loadData, 30000);
@@ -199,42 +180,40 @@
       if (refreshTimer) clearInterval(refreshTimer);
       document.getElementById('beginner').classList.remove('active');
       document.getElementById('menu').style.display = 'block';
-      document.getElementById('result-area').style.display = 'none';
     }
 
     function renderPatternList() {
-  const list = document.getElementById('pattern-list');
-  list.innerHTML = patterns.map(p => {
-    const matched = isPatternMatched(p.id);
-    const badge = matched ? '<span style="color:#e74c3c;font-size:13px;margin-left:8px;">一条发财路未读</span>' : '';
-    return `<div class="pattern-item" onclick="checkPattern('${p.id}')">${p.name}${badge} <span>›</span></div>`;
-  }).join('');
-}
+      const list = document.getElementById('pattern-list');
+      list.innerHTML = patterns.map(p => {
+        const matched = isPatternMatched(p.id);
+        const badge = matched ? '<span style="color:#e74c3c;font-size:13px;margin-left:8px;">一条发财路未读</span>' : '';
+        return `<div class="pattern-item" onclick="checkPattern('${p.id}')">${p.name}${badge} <span>›</span></div>`;
+      }).join('');
+    }
 
-function isPatternMatched(id) {
-  if (!draws.length) return false;
-  const recent = getRecent(30);
-  if (id === 'frog') return isFrogJump(recent);
-
-  if (id === '2f1t') return isHouseHall(recent, 2, 1);
-  if (id === '3f1t') return isHouseHall(recent, 3, 1);
-  if (id === '2f2t') return isHouseHall(recent, 2, 2);
-  if (id === '3f2t') return isHouseHall(recent, 3, 2);
-  if (id === '3f3t') return isHouseHall(recent, 3, 3);
-  if (id === '4dragon') return isDragon(recent, 4);
-  if (id === '5dragon') return isDragon(recent, 5);
-  if (id === '6dragon') return isDragon(recent, 6);
-  return false;
-}
+    function isPatternMatched(id) {
+      if (!draws.length) return false;
+      const recent = getRecent(30);
+      if (id === 'frog') return isFrogJump(recent);
+      if (id === '2f1t') return isHouseHall(recent, 2, 1);
+      if (id === '3f1t') return isHouseHall(recent, 3, 1);
+      if (id === '2f2t') return isHouseHall(recent, 2, 2);
+      if (id === '3f2t') return isHouseHall(recent, 3, 2);
+      if (id === '3f3t') return isHouseHall(recent, 3, 3);
+      if (id === '4dragon') return isDragon(recent, 4);
+      if (id === '5dragon') return isDragon(recent, 5);
+      if (id === '6dragon') return isDragon(recent, 6);
+      return false;
+    }
 
     async function loadData() {
       try {
         const res = await fetch('https://pc28.world/api/v1/draws?limit=100&_=' + Date.now());
         const json = await res.json();
-       if (json.ok) {
-  draws = json.data.items.slice().reverse();
-  renderPatternList();
-}
+        if (json.ok) {
+          draws = json.data.items.slice().reverse();
+          renderPatternList();
+        }
       } catch (e) {}
     }
 
@@ -242,163 +221,149 @@ function isPatternMatched(id) {
       return draws.slice(-n);
     }
 
-  function checkPattern(id) {
-  const items = document.querySelectorAll('.pattern-item');
-  let targetItem = null;
-  items.forEach(item => {
-    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${id}'`)) {
-      targetItem = item;
-    }
-  });
-  if (!targetItem) return;
+    function checkPattern(id) {
+      const items = document.querySelectorAll('.pattern-item');
+      let targetItem = null;
+      items.forEach(item => {
+        if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${id}'`)) {
+          targetItem = item;
+        }
+      });
+      if (!targetItem) return;
 
-  // 如果已经展开，则收起
-  const next = targetItem.nextElementSibling;
-  if (next && next.classList.contains('inline-result')) {
-    next.remove();
-    return;
-  }
-
-  // 先清除其他已展开的结果
-  document.querySelectorAll('.inline-result').forEach(el => el.remove());
-
-  const recent = getRecent(30);
-  let matched = false;
-  const displayData = getRecent(20);
-
-  if (id === 'frog') matched = isFrogJump(recent);
-  else if (id === '2f1t') matched = isHouseHall(recent, 2, 1);
-  else if (id === '3f1t') matched = isHouseHall(recent, 3, 1);
-  else if (id === '2f2t') matched = isHouseHall(recent, 2, 2);
-  else if (id === '3f2t') matched = isHouseHall(recent, 3, 2);
-  else if (id === '3f3t') matched = isHouseHall(recent, 3, 3);
-  else if (id === '4dragon') matched = isDragon(recent, 4);
-  else if (id === '5dragon') matched = isDragon(recent, 5);
-  else if (id === '6dragon') matched = isDragon(recent, 6);
-
-  const resultDiv = document.createElement('div');
-  resultDiv.className = 'inline-result';
-  resultDiv.style.cssText = 'margin: 8px 0 16px 0; padding: 12px; background: #f8f9fa; border-radius: 12px;';
-
-  if (matched) {
-    resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近20期走势</div>' + renderTrend(displayData);
-  } else {
-    resultDiv.innerHTML = '<div class="no-pattern">暂时无此规律</div>';
-  }
-
-  targetItem.after(resultDiv);
-}
-
-
-  function isFrogJump(arr) {
-  if (arr.length < 4) return false;
-  const last = arr.slice(-6);
-
-  let isBigJump = true;
-  for (let i = 1; i < last.length; i++) {
-    if (last[i].big === last[i - 1].big) {
-      isBigJump = false;
-      break;
-    }
-  }
-
-  let isOddJump = true;
-  for (let i = 1; i < last.length; i++) {
-    if (last[i].odd === last[i - 1].odd) {
-      isOddJump = false;
-      break;
-    }
-  }
-
-  return isBigJump || isOddJump;
-}
-
-   function isHouseHall(arr, house, hall) {
-  const needLen = (house + hall) * 2;
-  if (arr.length < needLen) return false;
-  const last = arr.slice(-needLen);
-
-  function getGroups(key) {
-    const groups = [];
-    let prev = null;
-    let cnt = 0;
-    for (const d of last) {
-      const v = d[key];
-      if (v === prev) {
-        cnt++;
-      } else {
-        if (prev !== null) groups.push(cnt);
-        prev = v;
-        cnt = 1;
+      const next = targetItem.nextElementSibling;
+      if (next && next.classList.contains('inline-result')) {
+        next.remove();
+        return;
       }
+
+      document.querySelectorAll('.inline-result').forEach(el => el.remove());
+
+      const recent = getRecent(30);
+      let matched = false;
+      const displayData = getRecent(20);
+
+      if (id === 'frog') matched = isFrogJump(recent);
+      else if (id === '2f1t') matched = isHouseHall(recent, 2, 1);
+      else if (id === '3f1t') matched = isHouseHall(recent, 3, 1);
+      else if (id === '2f2t') matched = isHouseHall(recent, 2, 2);
+      else if (id === '3f2t') matched = isHouseHall(recent, 3, 2);
+      else if (id === '3f3t') matched = isHouseHall(recent, 3, 3);
+      else if (id === '4dragon') matched = isDragon(recent, 4);
+      else if (id === '5dragon') matched = isDragon(recent, 5);
+      else if (id === '6dragon') matched = isDragon(recent, 6);
+
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'inline-result';
+      resultDiv.style.cssText = 'margin: 8px 0 16px 0; padding: 12px; background: #f8f9fa; border-radius: 12px;';
+
+      if (matched) {
+        resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近20期走势</div>' + renderTrend(displayData);
+      } else {
+        resultDiv.innerHTML = '<div class="no-pattern">暂时无此规律</div>';
+      }
+
+      targetItem.after(resultDiv);
     }
-    if (prev !== null) groups.push(cnt);
-    return groups;
-  }
 
-  const sizeGroups = getGroups('big');
-  const oddGroups = getGroups('odd');
-
-  const isMatch = (groups) => {
-    return groups.length === 4 &&
-           groups[0] === house && groups[1] === hall &&
-           groups[2] === house && groups[3] === hall;
-  };
-
-  return isMatch(sizeGroups) || isMatch(oddGroups);
-}
-
- function isDragon(arr, count) {
-  if (arr.length < count) return false;
-  const last = arr[arr.length - 1];
-  
-  // 检查大小连
-  let bigSmallCount = 1;
-  for (let i = arr.length - 2; i >= 0; i--) {
-    if (arr[i].big === last.big) bigSmallCount++;
-    else break;
-  }
-  if (bigSmallCount >= count) return true;
-
-  // 检查单双连
-  let oddEvenCount = 1;
-  for (let i = arr.length - 2; i >= 0; i--) {
-    if (arr[i].odd === last.odd) oddEvenCount++;
-    else break;
-  }
-  return oddEvenCount >= count;
-}
-
-
-  function renderTrend(arr) {
-  if (!arr.length) return '';
-  
-  const columns = [];
-  let currentCol = [];
-  
-  arr.forEach(d => {
-    const isBig = d.big;
-    if (currentCol.length === 0 || currentCol[0].isBig === isBig) {
-      currentCol.push({ label: isBig ? '大' : '小', color: isBig ? 'red' : 'blue', isBig });
-    } else {
-      columns.push(currentCol);
-      currentCol = [{ label: isBig ? '大' : '小', color: isBig ? 'red' : 'blue', isBig }];
+    function isFrogJump(arr) {
+      if (arr.length < 4) return false;
+      const last = arr.slice(-6);
+      let isBigJump = true;
+      for (let i = 1; i < last.length; i++) {
+        if (last[i].big === last[i - 1].big) {
+          isBigJump = false;
+          break;
+        }
+      }
+      let isOddJump = true;
+      for (let i = 1; i < last.length; i++) {
+        if (last[i].odd === last[i - 1].odd) {
+          isOddJump = false;
+          break;
+        }
+      }
+      return isBigJump || isOddJump;
     }
-  });
-  if (currentCol.length) columns.push(currentCol);
 
-  let html = '<div style="display:flex; overflow-x:auto; gap:4px; padding:8px 0; justify-content:center;">';
-  columns.forEach(col => {
-    html += '<div style="display:flex; flex-direction:column; gap:4px;">';
-    col.forEach(item => {
-      html += `<div class="trend-item ${item.color}">${item.label}</div>`;
-    });
-    html += '</div>';
-  });
-  html += '</div>';
-  return html;
-}
+    function isHouseHall(arr, house, hall) {
+      const needLen = (house + hall) * 2;
+      if (arr.length < needLen) return false;
+      const last = arr.slice(-needLen);
 
+      function getGroups(key) {
+        const groups = [];
+        let prev = null;
+        let cnt = 0;
+        for (const d of last) {
+          const v = d[key];
+          if (v === prev) {
+            cnt++;
+          } else {
+            if (prev !== null) groups.push(cnt);
+            prev = v;
+            cnt = 1;
+          }
+        }
+        if (prev !== null) groups.push(cnt);
+        return groups;
+      }
+
+      const sizeGroups = getGroups('big');
+      const oddGroups = getGroups('odd');
+
+      const isMatch = (groups) => {
+        return groups.length === 4 &&
+               groups[0] === house && groups[1] === hall &&
+               groups[2] === house && groups[3] === hall;
+      };
+
+      return isMatch(sizeGroups) || isMatch(oddGroups);
+    }
+
+    function isDragon(arr, count) {
+      if (arr.length < count) return false;
+      const last = arr[arr.length - 1];
+      let bigSmallCount = 1;
+      for (let i = arr.length - 2; i >= 0; i--) {
+        if (arr[i].big === last.big) bigSmallCount++;
+        else break;
+      }
+      if (bigSmallCount >= count) return true;
+      let oddEvenCount = 1;
+      for (let i = arr.length - 2; i >= 0; i--) {
+        if (arr[i].odd === last.odd) oddEvenCount++;
+        else break;
+      }
+      return oddEvenCount >= count;
+    }
+
+    function renderTrend(arr) {
+      if (!arr.length) return '';
+      const columns = [];
+      let currentCol = [];
+      arr.forEach(d => {
+        const isBig = d.big;
+        if (currentCol.length === 0 || currentCol[0].isBig === isBig) {
+          currentCol.push({ label: isBig ? '大' : '小', color: isBig ? 'red' : 'blue', isBig });
+        } else {
+          columns.push(currentCol);
+          currentCol = [{ label: isBig ? '大' : '小', color: isBig ? 'red' : 'blue', isBig }];
+        }
+      });
+      if (currentCol.length) columns.push(currentCol);
+
+      let html = '<div style="display:flex; overflow-x:auto; gap:4px; padding:8px 0; justify-content:center;">';
+      columns.forEach(col => {
+        html += '<div style="display:flex; flex-direction:column; gap:4px;">';
+        col.forEach(item => {
+          html += `<div class="trend-item ${item.color}">${item.label}</div>`;
+        });
+        html += '</div>';
+      });
+      html += '</div>';
+      return html;
+    }
   </script>
 </body>
 </html>
