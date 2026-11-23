@@ -45,17 +45,9 @@
       font-size: 18px;
       font-weight: 500;
       cursor: pointer;
-      transition: transform 0.1s;
     }
-    .level-card:active { transform: scale(0.98); }
-    .level-card.disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .content {
-      display: none;
-      padding: 12px;
-    }
+    .level-card.disabled { opacity: 0.5; cursor: not-allowed; }
+    .content { display: none; padding: 12px; }
     .content.active { display: block; }
     .back-btn {
       margin-bottom: 12px;
@@ -65,6 +57,18 @@
       border: none;
       border-radius: 8px;
       font-size: 14px;
+    }
+    .alert-box {
+      background: #ffebee;
+      border: 2px solid #e74c3c;
+      color: #c0392b;
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 12px;
+      display: none;
     }
     .stats {
       background: var(--tg-theme-secondary-bg-color);
@@ -84,9 +88,7 @@
       padding: 10px;
       border-radius: 8px;
     }
-    .road-section {
-      margin-bottom: 20px;
-    }
+    .road-section { margin-bottom: 20px; }
     .road-title {
       background: #f5d76e;
       color: #333;
@@ -102,7 +104,7 @@
       border: 1px solid #eee;
       border-top: none;
       padding: 8px;
-      min-height: 200px;
+      min-height: 180px;
       gap: 4px;
     }
     .road-column {
@@ -129,7 +131,7 @@
       text-align: center;
       font-size: 12px;
       color: var(--tg-theme-hint-color);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
   </style>
 </head>
@@ -145,6 +147,7 @@
   <div id="beginner" class="content">
     <button class="back-btn" onclick="backToMenu()">← 返回</button>
     <div class="refresh-tip">每30秒自动刷新</div>
+    <div id="alert-box" class="alert-box"></div>
     <div id="loading" class="loading">正在获取最新开奖数据...</div>
     <div id="beginner-content" style="display:none;">
       <div class="stats">
@@ -181,7 +184,6 @@
       document.getElementById(level).classList.add('active');
       if (level === 'beginner') {
         loadBeginnerData();
-        // 每30秒自动刷新
         if (refreshTimer) clearInterval(refreshTimer);
         refreshTimer = setInterval(loadBeginnerData, 30000);
       }
@@ -199,8 +201,7 @@
     async function loadBeginnerData() {
       const loading = document.getElementById('loading');
       const content = document.getElementById('beginner-content');
-      
-      // 只在第一次加载时显示 loading
+
       if (content.style.display === 'none') {
         loading.style.display = 'block';
       }
@@ -210,16 +211,54 @@
         const json = await res.json();
         if (!json.ok) throw new Error('数据获取失败');
 
-        const draws = json.data.items.reverse();
+        const draws = json.data.items.reverse(); // 从旧到新
         renderStats(draws);
         renderRoad(draws, 'big', 'big-small-road');
         renderRoad(draws, 'odd', 'odd-even-road');
+        checkStreaks(draws);
 
         loading.style.display = 'none';
         content.style.display = 'block';
       } catch (e) {
         loading.textContent = '数据加载失败，请稍后重试';
         console.error(e);
+      }
+    }
+
+    function checkStreaks(draws) {
+      const alertBox = document.getElementById('alert-box');
+      const alerts = [];
+
+      // 从最新一期往前算连开
+      const latest = draws[draws.length - 1];
+      
+      // 连大 / 连小
+      let bigSmallStreak = 1;
+      const isBig = latest.big;
+      for (let i = draws.length - 2; i >= 0; i--) {
+        if (draws[i].big === isBig) bigSmallStreak++;
+        else break;
+      }
+      if (bigSmallStreak >= 5) {
+        alerts.push(`已连${isBig ? '大' : '小'} ${bigSmallStreak} 期`);
+      }
+
+      // 连单 / 连双
+      let oddEvenStreak = 1;
+      const isOdd = latest.odd;
+      for (let i = draws.length - 2; i >= 0; i--) {
+        if (draws[i].odd === isOdd) oddEvenStreak++;
+        else break;
+      }
+      if (oddEvenStreak >= 5) {
+        alerts.push(`已连${isOdd ? '单' : '双'} ${oddEvenStreak} 期`);
+      }
+
+      if (alerts.length > 0) {
+        alertBox.innerHTML = alerts.join('<br>');
+        alertBox.style.display = 'block';
+      } else {
+        alertBox.style.display = 'none';
       }
     }
 
@@ -243,7 +282,6 @@
     function renderRoad(draws, type, containerId) {
       const container = document.getElementById(containerId);
       container.innerHTML = '';
-
       const columns = [];
       let currentCol = [];
 
