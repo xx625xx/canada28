@@ -177,17 +177,38 @@
     }
 
     function renderPatternList() {
-      const list = document.getElementById('pattern-list');
-      list.innerHTML = patterns.map(p => 
-        `<div class="pattern-item" onclick="checkPattern('${p.id}')">${p.name} <span>›</span></div>`
-      ).join('');
-    }
+  const list = document.getElementById('pattern-list');
+  list.innerHTML = patterns.map(p => {
+    const matched = isPatternMatched(p.id);
+    const badge = matched ? '<span style="color:#e74c3c;font-size:13px;margin-left:8px;">一条发财路未读</span>' : '';
+    return `<div class="pattern-item" onclick="checkPattern('${p.id}')">${p.name}${badge} <span>›</span></div>`;
+  }).join('');
+}
+
+function isPatternMatched(id) {
+  if (!draws.length) return false;
+  const recent = getRecent(30);
+  if (id === 'frog') return isFrogJump(recent);
+
+  if (id === '2f1t') return isHouseHall(recent, 2, 1);
+  if (id === '3f1t') return isHouseHall(recent, 3, 1);
+  if (id === '2f2t') return isHouseHall(recent, 2, 2);
+  if (id === '3f2t') return isHouseHall(recent, 3, 2);
+  if (id === '3f3t') return isHouseHall(recent, 3, 3);
+  if (id === '4dragon') return isDragon(recent, 4);
+  if (id === '5dragon') return isDragon(recent, 5);
+  if (id === '6dragon') return isDragon(recent, 6);
+  return false;
+}
 
     async function loadData() {
       try {
         const res = await fetch('https://pc28.world/api/v1/draws?limit=100&_=' + Date.now());
         const json = await res.json();
-        if (json.ok) draws = json.data.items.slice().reverse();
+       if (json.ok) {
+  draws = json.data.items.slice().reverse();
+  renderPatternList();
+}
       } catch (e) {}
     }
 
