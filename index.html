@@ -56,39 +56,50 @@
       background: #667eea; color: white; border: none;
       border-radius: 8px; font-size: 15px;
     }
-    .alert-box {
-      background: #ffebee; border: 2px solid #e74c3c; color: #c0392b;
-      padding: 14px; border-radius: 10px; text-align: center;
-      font-weight: bold; font-size: 16px; margin-bottom: 12px; display: none;
+    .pattern-list { padding: 10px 0; }
+    .pattern-item {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .stats { background: #f8f8f8; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .stats h3 { text-align: center; margin-bottom: 12px; }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-item { background: white; padding: 12px; border-radius: 8px; text-align: center; }
-    .road-title {
-      background: #f5d76e; color: #333; padding: 10px;
-      border-radius: 8px 8px 0 0; font-weight: bold; text-align: center;
+    .pattern-item:active { background: #eee; }
+    .result-area {
+      margin-top: 16px;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      min-height: 100px;
     }
-    .road-grid {
-      display: flex; overflow-x: auto; background: #fff;
-      border: 1px solid #eee; border-top: none; padding: 8px;
-      min-height: 160px; gap: 4px;
+    .no-pattern {
+      text-align: center;
+      color: #999;
+      padding: 40px 0;
+      font-size: 16px;
     }
-    .road-column { display: flex; flex-direction: column; gap: 4px; }
-    .circle {
-      width: 34px; height: 34px; border-radius: 50%;
+    .trend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .trend-item {
+      width: 32px; height: 32px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 13px; font-weight: bold; color: white;
     }
-    .circle.red { background: #e74c3c; }
-    .circle.blue { background: #3498db; }
-    .loading { text-align: center; padding: 50px; color: #999; }
-    .refresh-tip { text-align: center; font-size: 12px; color: #999; margin-bottom: 10px; }
+    .red { background: #e74c3c; }
+    .blue { background: #3498db; }
+    .loading { text-align: center; padding: 40px; color: #999; }
   </style>
 </head>
 <body>
 
-  <!-- 主菜单 -->
   <div id="menu">
     <div class="header">
       <h1>野寻加拿大28学堂</h1>
@@ -99,7 +110,7 @@
         <div class="icon-box icon-beginner">🌱</div>
         <div class="card-info">
           <h3>初级学堂</h3>
-          <p>大小单双统计 · 路子图 · 连开提醒</p>
+          <p>多种规律看板</p>
         </div>
       </div>
       <div class="level-card disabled">
@@ -121,31 +132,10 @@
     </div>
   </div>
 
-  <!-- 初级学堂 -->
   <div id="beginner" class="content">
     <button class="back-btn" onclick="backToMenu()">← 返回主界面</button>
-    <div class="refresh-tip">数据每30秒自动刷新</div>
-    <div id="alert-box" class="alert-box"></div>
-    <div id="loading" class="loading">正在获取最新开奖数据...</div>
-    <div id="beginner-content" style="display:none;">
-      <div class="stats">
-        <h3>最近100期统计</h3>
-        <div class="stats-grid">
-          <div class="stat-item">大：<span id="big-count">0</span> 次 (<span id="big-percent">0</span>%)</div>
-          <div class="stat-item">小：<span id="small-count">0</span> 次 (<span id="small-percent">0</span>%)</div>
-          <div class="stat-item">单：<span id="odd-count">0</span> 次 (<span id="odd-percent">0</span>%)</div>
-          <div class="stat-item">双：<span id="even-count">0</span> 次 (<span id="even-percent">0</span>%)</div>
-        </div>
-      </div>
-      <div class="road-section">
-        <div class="road-title">大小路</div>
-        <div id="big-small-road" class="road-grid"></div>
-      </div>
-      <div class="road-section" style="margin-top:16px;">
-        <div class="road-title">单双路</div>
-        <div id="odd-even-road" class="road-grid"></div>
-      </div>
-    </div>
+    <div id="pattern-list" class="pattern-list"></div>
+    <div id="result-area" class="result-area" style="display:none;"></div>
   </div>
 
   <script>
@@ -153,140 +143,124 @@
     tg.ready();
     tg.expand();
 
+    let draws = [];
     let refreshTimer = null;
+
+    const patterns = [
+      { id: 'frog', name: '青蛙跳规律看板' },
+      { id: '2f1t', name: '两房一厅规律看板' },
+      { id: '3f1t', name: '三房一厅规律看板' },
+      { id: '2f2t', name: '两房两厅规律看板' },
+      { id: '3f2t', name: '三房两厅规律看板' },
+      { id: '3f3t', name: '三房三厅规律看板' },
+      { id: '4dragon', name: '四小龙规律看板' },
+      { id: '5dragon', name: '五小龙规律看板' },
+      { id: '6dragon', name: '六长龙规律看板' }
+    ];
 
     function openLevel(level) {
       document.getElementById('menu').style.display = 'none';
       document.getElementById(level).classList.add('active');
       if (level === 'beginner') {
-        loadBeginnerData();
+        renderPatternList();
+        loadData();
         if (refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(loadBeginnerData, 30000);
+        refreshTimer = setInterval(loadData, 30000);
       }
     }
 
     function backToMenu() {
-      if (refreshTimer) {
-        clearInterval(refreshTimer);
-        refreshTimer = null;
-      }
+      if (refreshTimer) clearInterval(refreshTimer);
       document.getElementById('beginner').classList.remove('active');
       document.getElementById('menu').style.display = 'block';
+      document.getElementById('result-area').style.display = 'none';
     }
 
-    function playAlertSound() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.frequency.value = 880;
-        gain.gain.value = 0.2;
-        osc.start();
-        setTimeout(() => osc.frequency.value = 660, 180);
-        setTimeout(() => osc.frequency.value = 880, 360);
-        setTimeout(() => { osc.stop(); ctx.close(); }, 540);
-      } catch(e) {}
+    function renderPatternList() {
+      const list = document.getElementById('pattern-list');
+      list.innerHTML = patterns.map(p => 
+        `<div class="pattern-item" onclick="checkPattern('${p.id}')">${p.name} <span>›</span></div>`
+      ).join('');
     }
 
-    async function loadBeginnerData() {
-      const loading = document.getElementById('loading');
-      const content = document.getElementById('beginner-content');
-      if (content.style.display === 'none') loading.style.display = 'block';
-
+    async function loadData() {
       try {
         const res = await fetch('https://pc28.world/api/v1/draws?limit=100&_=' + Date.now());
         const json = await res.json();
-        if (!json.ok) throw new Error();
-
-        const draws = json.data.items.slice().reverse();
-        renderStats(draws);
-        renderRoad(draws, 'big', 'big-small-road');
-        renderRoad(draws, 'odd', 'odd-even-road');
-        checkStreaks(draws);
-
-        loading.style.display = 'none';
-        content.style.display = 'block';
-      } catch (err) {
-        loading.textContent = '加载失败，请稍后重试';
-      }
+        if (json.ok) draws = json.data.items.slice().reverse();
+      } catch (e) {}
     }
 
-    function checkStreaks(draws) {
-      const box = document.getElementById('alert-box');
-      const msgs = [];
-      if (!draws.length) return;
-      const last = draws[draws.length - 1];
+    function getRecent(n = 20) {
+      return draws.slice(-n);
+    }
 
-      let streak = 1;
-      for (let i = draws.length - 2; i >= 0; i--) {
-        if (draws[i].big === last.big) streak++;
-        else break;
-      }
-      if (streak >= 5) msgs.push(`已连${last.big ? '大' : '小'} ${streak} 期`);
+    function checkPattern(id) {
+      const area = document.getElementById('result-area');
+      area.style.display = 'block';
+      const recent = getRecent(30);
+      let matched = false;
+      let displayData = getRecent(20);
 
-      streak = 1;
-      for (let i = draws.length - 2; i >= 0; i--) {
-        if (draws[i].odd === last.odd) streak++;
-        else break;
-      }
-      if (streak >= 5) msgs.push(`已连${last.odd ? '单' : '双'} ${streak} 期`);
+      if (id === 'frog') matched = isFrogJump(recent);
+      else if (id === '2f1t') matched = isHouseHall(recent, 2, 1);
+      else if (id === '3f1t') matched = isHouseHall(recent, 3, 1);
+      else if (id === '2f2t') matched = isHouseHall(recent, 2, 2);
+      else if (id === '3f2t') matched = isHouseHall(recent, 3, 2);
+      else if (id === '3f3t') matched = isHouseHall(recent, 3, 3);
+      else if (id === '4dragon') matched = isDragon(recent, 4);
+      else if (id === '5dragon') matched = isDragon(recent, 5);
+      else if (id === '6dragon') matched = isDragon(recent, 6);
 
-      if (msgs.length) {
-        box.innerHTML = msgs.join('<br>');
-        box.style.display = 'block';
-        playAlertSound();
+      if (matched) {
+        area.innerHTML = '<div style="text-align:center;margin-bottom:10px;font-weight:bold;">近20期走势</div>' + renderTrend(displayData);
       } else {
-        box.style.display = 'none';
+        area.innerHTML = '<div class="no-pattern">暂时无此规律</div>';
       }
     }
 
-    function renderStats(draws) {
-      let big=0, small=0, odd=0, even=0;
-      draws.forEach(d => {
-        d.big ? big++ : small++;
-        d.odd ? odd++ : even++;
-      });
-      const t = draws.length || 1;
-      document.getElementById('big-count').textContent = big;
-      document.getElementById('small-count').textContent = small;
-      document.getElementById('odd-count').textContent = odd;
-      document.getElementById('even-count').textContent = even;
-      document.getElementById('big-percent').textContent = (big/t*100).toFixed(1);
-      document.getElementById('small-percent').textContent = (small/t*100).toFixed(1);
-      document.getElementById('odd-percent').textContent = (odd/t*100).toFixed(1);
-      document.getElementById('even-percent').textContent = (even/t*100).toFixed(1);
+    function isFrogJump(arr) {
+      if (arr.length < 4) return false;
+      const last = arr.slice(-6);
+      // 检查大小跳或单双跳
+      let bigJump = true, oddJump = true;
+      for (let i = 1; i < last.length; i++) {
+        if (last[i].big === last[i-1].big) bigJump = false;
+        if (last[i].odd === last[i-1].odd) oddJump = false;
+      }
+      return bigJump || oddJump;
     }
 
-    function renderRoad(draws, type, id) {
-      const container = document.getElementById(id);
-      container.innerHTML = '';
-      const cols = [];
-      let cur = [];
-      draws.forEach(d => {
-        const positive = type === 'big' ? d.big : d.odd;
-        const label = type === 'big' ? (d.big?'大':'小') : (d.odd?'单':'双');
-        const color = positive ? 'red' : 'blue';
-        if (!cur.length || cur[0].positive === positive) {
-          cur.push({label, color, positive});
-        } else {
-          cols.push(cur);
-          cur = [{label, color, positive}];
-        }
-      });
-      if (cur.length) cols.push(cur);
-      cols.forEach(col => {
-        const div = document.createElement('div');
-        div.className = 'road-column';
-        col.forEach(item => {
-          const c = document.createElement('div');
-          c.className = 'circle ' + item.color;
-          c.textContent = item.label;
-          div.appendChild(c);
-        });
-        container.appendChild(div);
-      });
+    function isHouseHall(arr, house, hall) {
+      if (arr.length < house + hall) return false;
+      const last = arr.slice(-(house + hall));
+      // 检查大小
+      const bigs = last.filter(d => d.big).length;
+      const smalls = last.length - bigs;
+      if ((bigs === house && smalls === hall) || (smalls === house && bigs === hall)) return true;
+      // 检查单双
+      const odds = last.filter(d => d.odd).length;
+      const evens = last.length - odds;
+      if ((odds === house && evens === hall) || (evens === house && odds === hall)) return true;
+      return false;
+    }
+
+    function isDragon(arr, count) {
+      if (arr.length < count) return false;
+      const last = arr.slice(-count);
+      const allBig = last.every(d => d.big);
+      const allSmall = last.every(d => !d.big);
+      const allOdd = last.every(d => d.odd);
+      const allEven = last.every(d => !d.odd);
+      return allBig || allSmall || allOdd || allEven;
+    }
+
+    function renderTrend(arr) {
+      return '<div class="trend">' + arr.map(d => {
+        const label = d.big ? '大' : '小';
+        const color = d.big ? 'red' : 'blue';
+        return `<div class="trend-item ${color}">${label}</div>`;
+      }).join('') + '</div>';
     }
   </script>
 </body>
