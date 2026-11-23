@@ -286,28 +286,41 @@ function isPatternMatched(id) {
   return false;
 }
 
-    function isHouseHall(arr, house, hall) {
-  const need = (house + hall) * 2; // 两个回合
+   function isHouseHall(arr, house, hall) {
+  const total = house + hall;
+  const need = total * 2; // 两个回合
   if (arr.length < need) return false;
+  
   const last = arr.slice(-need);
   
-  // 检查大小是否构成两个回合
-  let bigCount = 0, smallCount = 0;
-  for (let d of last) {
-    if (d.big) bigCount++; else smallCount++;
+  // 检查大小是否符合「house个 + hall个」重复两次
+  function checkSequence(getValue) {
+    const groups = [];
+    let current = null;
+    let count = 0;
+    
+    for (let d of last) {
+      const val = getValue(d);
+      if (val === current) {
+        count++;
+      } else {
+        if (current !== null) groups.push({ val: current, count });
+        current = val;
+        count = 1;
+      }
+    }
+    if (current !== null) groups.push({ val: current, count });
+    
+    // 需要正好4个分组，且交替，数量符合 house, hall, house, hall
+    if (groups.length !== 4) return false;
+    return groups[0].count === house && groups[1].count === hall &&
+           groups[2].count === house && groups[3].count === hall;
   }
-  const sizeOk = (bigCount === house * 2 && smallCount === hall * 2) || 
-                 (smallCount === house * 2 && bigCount === hall * 2);
   
-  // 检查单双是否构成两个回合
-  let oddCount = 0, evenCount = 0;
-  for (let d of last) {
-    if (d.odd) oddCount++; else evenCount++;
-  }
-  const oddOk = (oddCount === house * 2 && evenCount === hall * 2) || 
-                (evenCount === house * 2 && oddCount === hall * 2);
+  const sizeMatch = checkSequence(d => d.big);
+  const oddMatch = checkSequence(d => d.odd);
   
-  return sizeOk || oddOk;
+  return sizeMatch || oddMatch;
 }
 
  function isDragon(arr, count) {
