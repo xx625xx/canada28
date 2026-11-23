@@ -216,13 +216,29 @@ function isPatternMatched(id) {
       return draws.slice(-n);
     }
 
-   function checkPattern(id) {
-  // 先清除所有已显示的结果
+  function checkPattern(id) {
+  const items = document.querySelectorAll('.pattern-item');
+  let targetItem = null;
+  items.forEach(item => {
+    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${id}'`)) {
+      targetItem = item;
+    }
+  });
+  if (!targetItem) return;
+
+  // 如果已经展开，则收起
+  const next = targetItem.nextElementSibling;
+  if (next && next.classList.contains('inline-result')) {
+    next.remove();
+    return;
+  }
+
+  // 先清除其他已展开的结果
   document.querySelectorAll('.inline-result').forEach(el => el.remove());
 
   const recent = getRecent(30);
   let matched = false;
-  let displayData = getRecent(20);
+  const displayData = getRecent(20);
 
   if (id === 'frog') matched = isFrogJump(recent);
   else if (id === '2f1t') matched = isHouseHall(recent, 2, 1);
@@ -233,17 +249,6 @@ function isPatternMatched(id) {
   else if (id === '4dragon') matched = isDragon(recent, 4);
   else if (id === '5dragon') matched = isDragon(recent, 5);
   else if (id === '6dragon') matched = isDragon(recent, 6);
-
-  // 找到被点击的那个看板
-  const items = document.querySelectorAll('.pattern-item');
-  let targetItem = null;
-  items.forEach(item => {
-    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(id)) {
-      targetItem = item;
-    }
-  });
-
-  if (!targetItem) return;
 
   const resultDiv = document.createElement('div');
   resultDiv.className = 'inline-result';
@@ -257,6 +262,7 @@ function isPatternMatched(id) {
 
   targetItem.after(resultDiv);
 }
+
 
    function isFrogJump(arr) {
   if (arr.length < 4) return false;
