@@ -354,17 +354,21 @@
       return html + '</div>';
     }
 
-    function renderComboGrid(arr) {
-      if (!arr.length) return '<div class="no-pattern">暂无数据</div>';
-      let html = '<div style="display:grid; grid-template-columns:repeat(10, 34px); gap:6px; justify-content:center; margin:0 auto;">';
-      arr.forEach(d => {
-        const type = getComboType(d);
-        const color = getComboColor(type);
-        html += `<div class="trend-item ${color}">${type}</div>`;
-      });
-      html += '</div>';
-      return html;
-    }
+   function renderComboGrid(arr) {
+  if (!arr.length) return '<div class="no-pattern">暂无数据</div>';
+  let html = '<div style="display:grid; grid-template-columns:repeat(10, 34px); gap:6px; justify-content:center; margin:0 auto;">';
+  arr.forEach(d => {
+    const type = getComboType(d);
+    const color = getComboColor(type);
+    html += `<div class="trend-item ${color}">${type}</div>`;
+  });
+  // 空出第7行（10个空白格子）
+  for (let i = 0; i < 10; i++) {
+    html += `<div class="trend-item" style="background:#eee; color:#ccc;">?</div>`;
+  }
+  html += '</div>';
+  return html;
+}
 
     function getComboType(d) {
       if (d.big && d.odd) return '大单';
