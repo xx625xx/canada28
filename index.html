@@ -155,35 +155,50 @@
     }
 
     function openComboSub(subId) {
-      clearInlineResults();
-      const items = document.querySelectorAll('#intermediate-list .pattern-item');
-      let target = null;
-      items.forEach(item => {
-        if (item.getAttribute('onclick')?.includes(subId)) target = item;
-      });
-      if (!target) return;
+  clearInlineResults();
+  const items = document.querySelectorAll('#intermediate-list .pattern-item');
+  let target = null;
+  items.forEach(item => {
+    if (item.getAttribute('onclick')?.includes(subId)) target = item;
+  });
+  if (!target) return;
 
-      const resultDiv = document.createElement('div');
-      resultDiv.className = 'inline-result';
-      resultDiv.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
+  const next = target.nextElementSibling;
+  if (next && next.classList.contains('inline-result')) {
+    next.remove();
+    return;
+  }
 
-      if (subId === 'road') {
-        const recent = getRecent(30);
-        resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期组合路子图</div>' + renderComboRoad(recent);
-      } else if (subId === 'grid') {
-        const recent = getRecent(60);
-        resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近60期百宫格图</div>' + renderComboGrid(recent);
-      } else if (subId === 'alert') {
-        const recent = getRecent(30);
-        const alerts = checkComboAlerts(recent);
-        if (alerts.length > 0) {
-          resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;color:#e74c3c;">预警：' + alerts.join('、') + '</div><div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势</div>' + renderComboRoad(recent);
-        } else {
-          resultDiv.innerHTML = '<div class="no-pattern">暂时无此规律</div>';
-        }
-      }
-      target.after(resultDiv);
-    }
+  const resultDiv = document.createElement('div');
+  resultDiv.className = 'inline-result';
+  resultDiv.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
+
+  const recent = getRecent(30);
+  let matched = false;
+
+  if (subId === 'road') {
+    resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期组合路子图</div>' + renderComboRoad(recent);
+  } else if (subId === 'grid') {
+    resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近60期百宫格图</div>' + renderComboGrid(getRecent(60));
+  } else if (subId === 'frogAlert') {
+    matched = isSingleComboFrog(recent);
+    resultDiv.innerHTML = matched
+      ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势（单组合青蛙跳）</div>' + renderComboRoad(recent)
+      : '<div class="no-pattern">暂时无此规律</div>';
+  } else if (subId === 'fourColor') {
+    matched = isFourColorCycle(recent);
+    resultDiv.innerHTML = matched
+      ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势（四色牌）</div>' + renderComboRoad(recent)
+      : '<div class="no-pattern">暂时无此规律</div>';
+  } else if (subId === 'coldAlert') {
+    matched = isColdCombo(recent);
+    resultDiv.innerHTML = matched
+      ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势（单组合冷门）</div>' + renderComboRoad(recent)
+      : '<div class="no-pattern">暂时无此规律</div>';
+  }
+
+  target.after(resultDiv);
+}
 
     function showPlaceholder(target) {
       if (!target) return;
