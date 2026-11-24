@@ -331,42 +331,45 @@
       return checkPattern('big') || checkPattern('odd');
     }
 
-    function isDragon(arr, count) {
+   function isDragon(arr, count) {
   if (arr.length < count) return false;
-  const recent = arr.slice(-20);
+  const recent = arr.slice(-25);
 
-  // 六长龙：近20期内出现过 >=6 连续相同
- if (count === 6) {
-  function hasSixOrMore(key) {
-    let streak = 1;
-    for (let i = 1; i < recent.length; i++) {
-      if (recent[i][key] === recent[i-1][key]) {
-        streak++;
-        if (streak >= 6) return true;
-      } else {
-        streak = 1;
+  // 六长龙：近20期内出现过 >=6 连续
+  if (count === 6) {
+    function hasSixOrMore(key) {
+      let streak = 1;
+      for (let i = 1; i < recent.length; i++) {
+        if (recent[i][key] === recent[i-1][key]) {
+          streak++;
+          if (streak >= 6) return true;
+        } else streak = 1;
+      }
+      return false;
+    }
+    return hasSixOrMore('big') || hasSixOrMore('odd');
+  }
+
+  // 四小龙 / 五小龙：检查最近是否出现过正好 count 个相同，且后面没有更长
+  function checkDragon(key) {
+    for (let i = recent.length - 1; i >= count - 1; i--) {
+      let same = true;
+      for (let j = 0; j < count; j++) {
+        if (recent[i - j][key] !== recent[i][key]) {
+          same = false;
+          break;
+        }
+      }
+      if (same) {
+        // 检查前面一个是否不同（避免更长）
+        if (i - count >= 0 && recent[i - count][key] === recent[i][key]) continue;
+        return true;
       }
     }
     return false;
   }
-  return hasSixOrMore('big') || hasSixOrMore('odd');
-}
 
-  // 四小龙 / 五小龙：当前结尾正好是 count 个相同
-  const last = arr[arr.length - 1];
-  let streak = 1;
-  for (let i = arr.length - 2; i >= 0; i--) {
-    if (arr[i].big === last.big) streak++;
-    else break;
-  }
-  if (streak === count) return true;
-
-  streak = 1;
-  for (let i = arr.length - 2; i >= 0; i--) {
-    if (arr[i].odd === last.odd) streak++;
-    else break;
-  }
-  return streak === count;
+  return checkDragon('big') || checkDragon('odd');
 }
     
     function renderTrend(arr) {
