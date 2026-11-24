@@ -442,23 +442,24 @@
     }
 
     function isFrogJump(arr) {
-      if (arr.length < 5) return false;
-      const last = arr.slice(-20);
-      function hasAlternatingStreak(key, minChanges = 4) {
-        let maxChanges = 0;
-        let currentChanges = 0;
-        for (let i = 1; i < last.length; i++) {
-          if (last[i][key] !== last[i-1][key]) {
-            currentChanges++;
-            maxChanges = Math.max(maxChanges, currentChanges);
-          } else {
-            currentChanges = 0;
-          }
-        }
-        return maxChanges >= minChanges;
+  if (arr.length < 5) return false;
+  const recent = arr.slice(-20);
+
+  function hasStrictAlternating(key, minChanges = 4) {
+    let changes = 0;
+    for (let i = 1; i < recent.length; i++) {
+      if (recent[i][key] !== recent[i-1][key]) {
+        changes++;
+      } else {
+        changes = 0;
       }
-      return hasAlternatingStreak('big') || hasAlternatingStreak('odd');
+      if (changes >= minChanges) return true;
     }
+    return false;
+  }
+
+  return hasStrictAlternating('big', 4) || hasStrictAlternating('odd', 4);
+}
 
     function isHouseHall(arr, house, hall) {
       const need = Math.ceil((house + hall) * 2.5);
