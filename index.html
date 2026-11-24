@@ -26,6 +26,8 @@
     .back-btn { margin-bottom: 12px; padding: 10px 18px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 15px; }
     .pattern-item { background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 10px; cursor: pointer; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
     .no-pattern { text-align: center; color: #999; padding: 40px 0; }
+    .scholarship-content { background: #f8f9fa; border-radius: 12px; padding: 16px; margin: 10px 0; line-height: 1.6; white-space: pre-wrap; font-size: 15px; }
+    .contact-link { display: block; background: #e3f2fd; border-radius: 10px; padding: 14px; margin: 8px 0; text-decoration: none; color: #1976d2; font-weight: 500; }
     .trend-item { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: white; flex-shrink: 0; }
     .green { background: #2ecc71; }
     .gray { background: #95a5a6; }
@@ -63,10 +65,9 @@
         <div class="icon-box icon-advanced">👑</div>
         <div class="card-info"><h3>高级学堂</h3><p>百位 · 十位 · 个位 · 倍数</p></div>
       </div>
-      <div class="level-card disabled">
+      <div class="level-card" onclick="openScholarship()">
         <div class="icon-box" style="background:#e3f2fd;">🎓</div>
         <div class="card-info"><h3>申请奖学金</h3><p>学习奖励申请</p></div>
-        <div class="badge">即将开放</div>
       </div>
       <div class="level-card" onclick="openCommunity()">
         <div class="icon-box" style="background:#f3e5f5;">💬</div>
@@ -90,6 +91,11 @@
     <div id="advanced-list"></div>
   </div>
 
+  <div id="scholarship" class="content">
+    <button class="back-btn" onclick="backToMenu()">← 返回主界面</button>
+    <div id="scholarship-list"></div>
+  </div>
+
   <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
@@ -98,6 +104,86 @@
     function openCommunity() {
       if (tg.openTelegramLink) tg.openTelegramLink('https://t.me/ooxxyx');
       else window.open('https://t.me/ooxxyx', '_blank');
+    }
+
+    function openScholarship() {
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('scholarship').classList.add('active');
+      renderScholarshipList();
+    }
+
+    function renderScholarshipList() {
+      const list = document.getElementById('scholarship-list');
+      list.innerHTML = `
+        <div class="pattern-item" onclick="showScholarship('xingguang')">🌟 星光奖学金 <span>›</span></div>
+        <div class="pattern-item" onclick="showScholarship('duxing')">🌷 笃行奖学金 <span>›</span></div>
+        <div class="pattern-item" onclick="showScholarship('xin ya')">🌱 新芽奖学金 <span>›</span></div>
+        <div class="pattern-item" onclick="showScholarship('contact')">联系经办人 <span>›</span></div>
+      `;
+    }
+
+    function showScholarship(type) {
+      clearInlineResults();
+      const list = document.getElementById('scholarship-list');
+      const items = list.querySelectorAll('.pattern-item');
+      let target = null;
+      items.forEach(item => {
+        if (item.getAttribute('onclick')?.includes(type)) target = item;
+      });
+      if (!target) return;
+
+      const next = target.nextElementSibling;
+      if (next && next.classList.contains('inline-result')) {
+        next.remove();
+        return;
+      }
+
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'inline-result';
+      resultDiv.style.cssText = 'margin:8px 0 16px;';
+
+      if (type === 'xingguang') {
+        resultDiv.innerHTML = `<div class="scholarship-content">🌟 【星光奖学金】 🌟
+
+📚 申请条件
+
+1️⃣ 注册成为 野寻 HM 会员。
+2️⃣ 已领取过 笃行奖学金。
+3️⃣ 完成 百位数／十位数／个位数数字竞猜50局，且竞猜数字流水 超过25000。
+4️⃣ 完成 和值数字竞猜25局，且竞猜和值数字流水 超过25000。
+
+💌 完成以上四项，即可申请星光奖学金。</div>`;
+      } else if (type === 'duxing') {
+        resultDiv.innerHTML = `<div class="scholarship-content">🌷 【笃行奖学金】 🌷
+
+📚 申请条件
+
+1️⃣ 注册成为 野寻 HM 会员。
+2️⃣ 已领取过 新芽奖学金。
+3️⃣ 参与 组合竞猜，且组合竞猜流水 不低于80000。
+4️⃣ 参与 和值尾数竞猜，且和值尾数竞猜流水 不低于5000。
+5️⃣ 参与 极大极小竞猜，且极大极小竞猜流水 不低于5000。
+6️⃣ 参与 对子顺子豹子竞猜，且对子顺子豹子竞猜流水 不低于3000。
+
+💌 完成以上六项，即可申请笃行奖学金。</div>`;
+      } else if (type === 'xin ya') {
+        resultDiv.innerHTML = `<div class="scholarship-content">🌱 【新芽奖学金】 🌱
+
+📚 申请条件
+
+1️⃣ 注册成为 野寻 HM 会员。
+2️⃣ 参与 大小单双竞猜，且大小单双竞猜流水 超过50000。
+
+💌 完成以上两项，即可申请新芽奖学金。</div>`;
+      } else if (type === 'contact') {
+        resultDiv.innerHTML = `
+          <div class="scholarship-content">请选择联系经办人：</div>
+          <a class="contact-link" href="https://t.me/chase_psz" target="_blank">朴社长</a>
+          <a class="contact-link" href="https://t.me/chase_bd" target="_blank">拾光</a>
+        `;
+      }
+
+      target.after(resultDiv);
     }
 
     let draws = [];
