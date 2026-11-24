@@ -123,11 +123,12 @@
         loadData(true);
         if (refreshTimer) clearInterval(refreshTimer);
         refreshTimer = setInterval(() => loadData(true), 30000);
-      } else if (level === 'intermediate') {
-        renderIntermediateList();
-        loadData(false);
-      }
-    }
+} else if (level === 'intermediate') {
+  renderIntermediateList();
+  loadData(false);
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => loadData(false), 30000);
+}
 
     function backToMenu() {
       if (refreshTimer) clearInterval(refreshTimer);
