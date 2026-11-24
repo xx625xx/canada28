@@ -439,9 +439,7 @@
 
  function renderTailGrid(arr) {
   if (!arr.length) return '<div class="no-pattern">暂无数据</div>';
-  let debug = arr.slice(0, 3).map(d => d.sum).join(', ');
-  let html = `<div style="text-align:center;color:red;margin-bottom:8px;">调试：前3期和值 = ${debug}</div>`;
-  html += '<div style="display:grid; grid-template-columns:repeat(10, 34px); gap:6px; justify-content:center; margin:0 auto;">';
+  let html = '<div style="display:grid; grid-template-columns:repeat(10, 34px); gap:6px; justify-content:center; margin:0 auto;">';
   arr.forEach(d => {
     const tail = (d.sum || 0) % 10;
     html += `<div class="trend-item tail-${tail}">${tail}</div>`;
