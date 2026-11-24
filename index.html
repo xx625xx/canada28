@@ -264,11 +264,11 @@
     }
 
     function renderAdvancedList() {
-      const list = document.getElementById('advanced-list');
-      list.innerHTML = advancedItems.map(item =>
-        `<div class="pattern-item" onclick="openAdvancedItem('${item.id}')">${item.name} <span>›</span></div>`
-      ).join('');
-    }
+  const list = document.getElementById('advanced-list');
+  list.innerHTML = advancedItems.map(item =>
+    `<div class="pattern-item" onclick="openAdvancedItem('${item.id}')">${item.name} <span>›</span></div>`
+  ).join('') + `<div class="pattern-item" onclick="showMenu()" style="background:#eee;margin-top:16px;">← 返回主界面</div>`;
+}
 
     function openIntermediateItem(id) {
   clearInlineResults();
