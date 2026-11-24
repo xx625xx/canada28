@@ -160,10 +160,13 @@
         list.innerHTML = comboSubItems.map(item =>
           `<div class="pattern-item" onclick="openComboSub('${item.id}')">${item.name} <span>›</span></div>`
         ).join('') + `<div class="pattern-item" onclick="renderIntermediateList()" style="background:#eee;">← 返回上一级</div>`;
-      } else if (id === 'tail') {
-        const recent = getRecent(90);
-        list.innerHTML = '<div style="text-align:center;margin:12px 0;font-weight:bold;">近90期和值尾数百宫格</div>' + renderTailGrid(recent);
-      } else {
+     } else if (id === 'tail') {
+  const recent = getRecent(90);
+  list.innerHTML = '<div style="text-align:center;margin:12px 0;font-weight:bold;">近90期和值尾数百宫格</div>' + renderTailGrid(recent);
+} else if (id === 'extreme') {
+  const recent = getRecent(90);
+  list.innerHTML = '<div style="text-align:center;margin:12px 0;font-weight:bold;">近90期极大极小百宫格</div>' + renderExtremeGrid(recent);
+} else {
         showPlaceholder(list.querySelector(`[onclick*="${id}"]`));
       }
     }
@@ -450,7 +453,23 @@
   html += '</div>';
   return html;
 }
-
+function renderExtremeGrid(arr) {
+  if (!arr.length) return '<div class="no-pattern">暂无数据</div>';
+  let html = '<div style="display:grid; grid-template-columns:repeat(10, 34px); gap:6px; justify-content:center; margin:0 auto;">';
+  arr.forEach(d => {
+    const sum = d.sum || 0;
+    const isExtreme = sum >= 22 || sum <= 5;
+    const color = isExtreme ? 'red' : 'green';
+    const label = isExtreme ? (sum >= 22 ? '极大' : '极小') : sum;
+    html += `<div class="trend-item ${color}">${label}</div>`;
+  });
+  for (let i = 0; i < 10; i++) {
+    html += `<div class="trend-item" style="background:#ffffff; border:1px solid #ddd;"></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+    
     function getComboType(d) {
       if (d.big && d.odd) return '大单';
       if (d.big && !d.odd) return '大双';
