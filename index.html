@@ -567,7 +567,7 @@
       let html = '<div style="display:grid; grid-template-columns:repeat(10, 34px); gap:6px; justify-content:center; margin:0 auto;">';
       arr.forEach(d => {
         const mod = (d.sum || 0) % divisor;
-        html += `<div class="trend-item mod-${mod}">${mod}</div>`;
+        html += `<div class="trend-item mod-${mod}">${d.sum || 0}</div>`;
       });
       for (let i = 0; i < 10; i++) {
         html += `<div class="trend-item" style="background:#ffffff; border:1px solid #ddd;"></div>`;
