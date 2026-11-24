@@ -162,12 +162,7 @@
         ).join('') + `<div class="pattern-item" onclick="renderIntermediateList()" style="background:#eee;">← 返回上一级</div>`;
       } else if (id === 'tail') {
         const recent = getRecent(90);
-        const resultDiv = document.createElement('div');
-        resultDiv.className = 'inline-result';
-        resultDiv.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
-        resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近90期和值尾数百宫格</div>' + renderTailGrid(recent);
-        list.innerHTML = '';
-        list.appendChild(resultDiv);
+        list.innerHTML = '<div style="text-align:center;margin:12px 0;font-weight:bold;">近90期和值尾数百宫格</div>' + renderTailGrid(recent);
       } else {
         showPlaceholder(list.querySelector(`[onclick*="${id}"]`));
       }
@@ -450,7 +445,6 @@
         const tail = sum % 10;
         html += `<div class="trend-item tail-${tail}">${tail}</div>`;
       });
-      // 第10行空白
       for (let i = 0; i < 10; i++) {
         html += `<div class="trend-item" style="background:#ffffff; border:1px solid #ddd;"></div>`;
       }
