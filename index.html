@@ -697,11 +697,16 @@
     }
 
     function isColdCombo(arr) {
-      const recent = arr.slice(-30);
-      const count = { '大单': 0, '小单': 0, '大双': 0, '小双': 0 };
-      recent.forEach(d => count[getComboType(d)]++);
-      return Object.values(count).some(c => (30 - c) > 10);
-    }
+  if (arr.length < 30) return false;
+  const recent = arr.slice(-30);
+  const count = { '大单': 0, '小单': 0, '大双': 0, '小双': 0 };
+  recent.forEach(d => {
+    const type = getComboType(d);
+    count[type]++;
+  });
+  // 某个组合在近30期里出现次数 ≤ 20（即冷门超过10期）
+  return Object.values(count).some(c => c <= 20);
+}
   </script>
 </body>
 </html>
