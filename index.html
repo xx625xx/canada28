@@ -26,11 +26,21 @@
     .back-btn { margin-bottom: 12px; padding: 10px 18px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 15px; }
     .pattern-item { background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 10px; cursor: pointer; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
     .no-pattern { text-align: center; color: #999; padding: 40px 0; }
-    .trend-item { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: white; flex-shrink: 0; }
+    .trend-item { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: white; flex-shrink: 0; }
     .green { background: #2ecc71; }
     .gray { background: #95a5a6; }
     .red { background: #e74c3c; }
     .blue { background: #3498db; }
+    .tail-0 { background: #e74c3c; color: white; }
+    .tail-1 { background: #e67e22; color: white; }
+    .tail-2 { background: #f1c40f; color: #333; }
+    .tail-3 { background: #2ecc71; color: white; }
+    .tail-4 { background: #1abc9c; color: white; }
+    .tail-5 { background: #3498db; color: white; }
+    .tail-6 { background: #9b59b6; color: white; }
+    .tail-7 { background: #e91e63; color: white; }
+    .tail-8 { background: #ffffff; color: #333; border: 1px solid #ddd; }
+    .tail-9 { background: #2c3e50; color: white; }
   </style>
 </head>
 <body>
@@ -150,6 +160,14 @@
         list.innerHTML = comboSubItems.map(item =>
           `<div class="pattern-item" onclick="openComboSub('${item.id}')">${item.name} <span>›</span></div>`
         ).join('') + `<div class="pattern-item" onclick="renderIntermediateList()" style="background:#eee;">← 返回上一级</div>`;
+      } else if (id === 'tail') {
+        const recent = getRecent(90);
+        const resultDiv = document.createElement('div');
+        resultDiv.className = 'inline-result';
+        resultDiv.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
+        resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近90期和值尾数百宫格</div>' + renderTailGrid(recent);
+        list.innerHTML = '';
+        list.appendChild(resultDiv);
       } else {
         showPlaceholder(list.querySelector(`[onclick*="${id}"]`));
       }
@@ -417,6 +435,22 @@
         const color = getComboColor(type);
         html += `<div class="trend-item ${color}">${type}</div>`;
       });
+      for (let i = 0; i < 10; i++) {
+        html += `<div class="trend-item" style="background:#ffffff; border:1px solid #ddd;"></div>`;
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function renderTailGrid(arr) {
+      if (!arr.length) return '<div class="no-pattern">暂无数据</div>';
+      let html = '<div style="display:grid; grid-template-columns:repeat(10, 34px); gap:6px; justify-content:center; margin:0 auto;">';
+      arr.forEach(d => {
+        const sum = (d.a || 0) + (d.b || 0) + (d.c || 0);
+        const tail = sum % 10;
+        html += `<div class="trend-item tail-${tail}">${tail}</div>`;
+      });
+      // 第10行空白
       for (let i = 0; i < 10; i++) {
         html += `<div class="trend-item" style="background:#ffffff; border:1px solid #ddd;"></div>`;
       }
