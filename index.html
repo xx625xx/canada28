@@ -108,13 +108,13 @@
       { id: 'shape', name: '对子顺子豹子走势规律研判' }
     ];
 
-   const comboSubItems = [
-  { id: 'road', name: '路子图' },
-  { id: 'grid', name: '百宫格图' },
-  { id: 'frogAlert', name: '单组合青蛙跳' },
-  { id: 'fourColor', name: '四色牌走势' },
-  { id: 'coldAlert', name: '单组合冷门' }
-];
+    const comboSubItems = [
+      { id: 'road', name: '路子图' },
+      { id: 'grid', name: '百宫格图' },
+      { id: 'frogAlert', name: '单组合青蛙跳' },
+      { id: 'fourColor', name: '四色牌走势' },
+      { id: 'coldAlert', name: '单组合冷门' }
+    ];
 
     function openLevel(level) {
       document.getElementById('menu').style.display = 'none';
@@ -123,12 +123,13 @@
         loadData(true);
         if (refreshTimer) clearInterval(refreshTimer);
         refreshTimer = setInterval(() => loadData(true), 30000);
-} else if (level === 'intermediate') {
-  renderIntermediateList();
-  loadData(false);
-  if (refreshTimer) clearInterval(refreshTimer);
-  refreshTimer = setInterval(() => loadData(false), 30000);
-}
+      } else if (level === 'intermediate') {
+        renderIntermediateList();
+        loadData(false);
+        if (refreshTimer) clearInterval(refreshTimer);
+        refreshTimer = setInterval(() => loadData(false), 30000);
+      }
+    }
 
     function backToMenu() {
       if (refreshTimer) clearInterval(refreshTimer);
@@ -156,50 +157,50 @@
     }
 
     function openComboSub(subId) {
-  clearInlineResults();
-  const items = document.querySelectorAll('#intermediate-list .pattern-item');
-  let target = null;
-  items.forEach(item => {
-    if (item.getAttribute('onclick')?.includes(subId)) target = item;
-  });
-  if (!target) return;
+      clearInlineResults();
+      const items = document.querySelectorAll('#intermediate-list .pattern-item');
+      let target = null;
+      items.forEach(item => {
+        if (item.getAttribute('onclick')?.includes(subId)) target = item;
+      });
+      if (!target) return;
 
-  const next = target.nextElementSibling;
-  if (next && next.classList.contains('inline-result')) {
-    next.remove();
-    return;
-  }
+      const next = target.nextElementSibling;
+      if (next && next.classList.contains('inline-result')) {
+        next.remove();
+        return;
+      }
 
-  const resultDiv = document.createElement('div');
-  resultDiv.className = 'inline-result';
-  resultDiv.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'inline-result';
+      resultDiv.style.cssText = 'margin:8px 0 16px;padding:12px;background:#f8f9fa;border-radius:12px;';
 
-  const recent = getRecent(30);
-  let matched = false;
+      const recent = getRecent(30);
+      let matched = false;
 
-  if (subId === 'road') {
-    resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期组合路子图</div>' + renderComboRoad(recent);
-  } else if (subId === 'grid') {
-    resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近60期百宫格图</div>' + renderComboGrid(getRecent(60));
-  } else if (subId === 'frogAlert') {
-    matched = isSingleComboFrog(recent);
-    resultDiv.innerHTML = matched
-      ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势（单组合青蛙跳）</div>' + renderComboRoad(recent)
-      : '<div class="no-pattern">暂时无此规律</div>';
-  } else if (subId === 'fourColor') {
-    matched = isFourColorCycle(recent);
-    resultDiv.innerHTML = matched
-      ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势（四色牌）</div>' + renderComboRoad(recent)
-      : '<div class="no-pattern">暂时无此规律</div>';
-  } else if (subId === 'coldAlert') {
-    matched = isColdCombo(recent);
-    resultDiv.innerHTML = matched
-      ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势（单组合冷门）</div>' + renderComboRoad(recent)
-      : '<div class="no-pattern">暂时无此规律</div>';
-  }
+      if (subId === 'road') {
+        resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期组合路子图</div>' + renderComboRoad(recent);
+      } else if (subId === 'grid') {
+        resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近60期百宫格图</div>' + renderComboGrid(getRecent(60));
+      } else if (subId === 'frogAlert') {
+        matched = isSingleComboFrog(recent);
+        resultDiv.innerHTML = matched
+          ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势（单组合青蛙跳）</div>' + renderComboRoad(recent)
+          : '<div class="no-pattern">暂时无此规律</div>';
+      } else if (subId === 'fourColor') {
+        matched = isFourColorCycle(recent);
+        resultDiv.innerHTML = matched
+          ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势（四色牌）</div>' + renderComboRoad(recent)
+          : '<div class="no-pattern">暂时无此规律</div>';
+      } else if (subId === 'coldAlert') {
+        matched = isColdCombo(recent);
+        resultDiv.innerHTML = matched
+          ? '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势（单组合冷门）</div>' + renderComboRoad(recent)
+          : '<div class="no-pattern">暂时无此规律</div>';
+      }
 
-  target.after(resultDiv);
-}
+      target.after(resultDiv);
+    }
 
     function showPlaceholder(target) {
       if (!target) return;
@@ -332,47 +333,43 @@
       return checkPattern('big') || checkPattern('odd');
     }
 
-   function isDragon(arr, count) {
-  if (arr.length < count) return false;
-  const recent = arr.slice(-25);
+    function isDragon(arr, count) {
+      if (arr.length < count) return false;
+      const recent = arr.slice(-25);
 
-  // 六长龙：近20期内出现过 >=6 连续
-  if (count === 6) {
-    function hasSixOrMore(key) {
-      let streak = 1;
-      for (let i = 1; i < recent.length; i++) {
-        if (recent[i][key] === recent[i-1][key]) {
-          streak++;
-          if (streak >= 6) return true;
-        } else streak = 1;
-      }
-      return false;
-    }
-    return hasSixOrMore('big') || hasSixOrMore('odd');
-  }
-
-  // 四小龙 / 五小龙：检查最近是否出现过正好 count 个相同，且后面没有更长
-  function checkDragon(key) {
-    for (let i = recent.length - 1; i >= count - 1; i--) {
-      let same = true;
-      for (let j = 0; j < count; j++) {
-        if (recent[i - j][key] !== recent[i][key]) {
-          same = false;
-          break;
+      if (count === 6) {
+        function hasSixOrMore(key) {
+          let streak = 1;
+          for (let i = 1; i < recent.length; i++) {
+            if (recent[i][key] === recent[i-1][key]) {
+              streak++;
+              if (streak >= 6) return true;
+            } else streak = 1;
+          }
+          return false;
         }
+        return hasSixOrMore('big') || hasSixOrMore('odd');
       }
-      if (same) {
-        // 检查前面一个是否不同（避免更长）
-        if (i - count >= 0 && recent[i - count][key] === recent[i][key]) continue;
-        return true;
-      }
-    }
-    return false;
-  }
 
-  return checkDragon('big') || checkDragon('odd');
-}
-    
+      function checkDragon(key) {
+        for (let i = recent.length - 1; i >= count - 1; i--) {
+          let same = true;
+          for (let j = 0; j < count; j++) {
+            if (recent[i - j][key] !== recent[i][key]) {
+              same = false;
+              break;
+            }
+          }
+          if (same) {
+            if (i - count >= 0 && recent[i - count][key] === recent[i][key]) continue;
+            return true;
+          }
+        }
+        return false;
+      }
+      return checkDragon('big') || checkDragon('odd');
+    }
+
     function renderTrend(arr) {
       if (!arr.length) return '';
       const columns = [];
@@ -446,14 +443,6 @@
       if (type === '小单') return 'gray';
       if (type === '大双') return 'red';
       return 'blue';
-    }
-
-    function checkComboAlerts(arr) {
-      const alerts = [];
-      if (isSingleComboFrog(arr)) alerts.push('单组合青蛙跳');
-      if (isFourColorCycle(arr)) alerts.push('四色牌');
-      if (isColdCombo(arr)) alerts.push('单组合冷门');
-      return alerts;
     }
 
     function isSingleComboFrog(arr) {
