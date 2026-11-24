@@ -171,8 +171,14 @@
       } else if (subId === 'grid') {
         const recent = getRecent(60);
         resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;">近60期百宫格图</div>' + renderComboGrid(recent);
-      } else {
-        resultDiv.innerHTML = '<div class="no-pattern">功能开发中，敬请期待</div>';
+      } else if (subId === 'alert') {
+        const recent = getRecent(30);
+        const alerts = checkComboAlerts(recent);
+        if (alerts.length > 0) {
+          resultDiv.innerHTML = '<div style="text-align:center;margin-bottom:8px;font-weight:bold;color:#e74c3c;">预警：' + alerts.join('、') + '</div><div style="text-align:center;margin-bottom:8px;font-weight:bold;">近30期走势</div>' + renderComboRoad(recent);
+        } else {
+          resultDiv.innerHTML = '<div class="no-pattern">暂时无此规律</div>';
+        }
       }
       target.after(resultDiv);
     }
@@ -263,8 +269,6 @@
       targetItem.after(resultDiv);
     }
 
-    // ==================== 修复后的规律判断函数 ====================
-
     function isFrogJump(arr) {
       if (arr.length < 5) return false;
       const last = arr.slice(-10);
@@ -281,10 +285,9 @@
 
     function isHouseHall(arr, house, hall) {
       const unit = house + hall;
-      const need = Math.ceil(unit * 2.5); // 至少两次半
+      const need = Math.ceil(unit * 2.5);
       if (arr.length < need) return false;
       const last = arr.slice(-need);
-
       function checkPattern(key) {
         const groups = [];
         let prev = null, cnt = 0;
@@ -298,8 +301,6 @@
           }
         }
         if (prev !== null) groups.push(cnt);
-
-        // 检查是否符合 house, hall, house 重复
         if (groups.length < 5) return false;
         for (let i = 0; i <= groups.length - 5; i++) {
           if (groups[i] === house && groups[i+1] === hall &&
@@ -316,8 +317,6 @@
     function isDragon(arr, count) {
       if (arr.length < count) return false;
       const recent = arr.slice(-20);
-
-      // 六小龙：近20期内出现过 >=6 连续
       if (count === 6) {
         let max = 1, cur = 1;
         for (let i = 1; i < recent.length; i++) {
@@ -328,8 +327,6 @@
         }
         return max >= 6;
       }
-
-      // 四小龙 / 五小龙：当前结尾是 count 个相同，且后面没有更长
       const last = arr[arr.length - 1];
       let streak = 1;
       for (let i = arr.length - 2; i >= 0; i--) {
@@ -337,7 +334,6 @@
         else break;
       }
       if (streak === count) return true;
-
       streak = 1;
       for (let i = arr.length - 2; i >= 0; i--) {
         if (arr[i].odd === last.odd) streak++;
@@ -393,33 +389,83 @@
     }
 
     function renderComboGrid(arr) {
-  if (!arr.length) return '<div class="no-pattern">暂无数据</div>';
-  let html = '<div style="display:grid; grid-template-columns:repeat(10, 34px); gap:6px; justify-content:center; margin:0 auto;">';
-  arr.forEach(d => {
-    const type = getComboType(d);
-    const color = getComboColor(type);
-    html += `<div class="trend-item ${color}">${type}</div>`;
-  });
-  for (let i = 0; i < 10; i++) {
-    html += `<div class="trend-item" style="background:#ffffff; border:1px solid #ddd;"></div>`;
-  }
-  html += '</div>';
-  return html;
-}
+      if (!arr.length) return '<div class="no-pattern">暂无数据</div>';
+      let html = '<div style="display:grid; grid-template-columns:repeat(10, 34px); gap:6px; justify-content:center; margin:0 auto;">';
+      arr.forEach(d => {
+        const type = getComboType(d);
+        const color = getComboColor(type);
+        html += `<div class="trend-item ${color}">${type}</div>`;
+      });
+      for (let i = 0; i < 10; i++) {
+        html += `<div class="trend-item" style="background:#ffffff; border:1px solid #ddd;"></div>`;
+      }
+      html += '</div>';
+      return html;
+    }
 
-function getComboType(d) {
-  if (d.big && d.odd) return '大单';
-  if (d.big && !d.odd) return '大双';
-  if (!d.big && d.odd) return '小单';
-  return '小双';
-}
+    function getComboType(d) {
+      if (d.big && d.odd) return '大单';
+      if (d.big && !d.odd) return '大双';
+      if (!d.big && d.odd) return '小单';
+      return '小双';
+    }
 
-function getComboColor(type) {
-  if (type === '大单') return 'green';
-  if (type === '小单') return 'gray';
-  if (type === '大双') return 'red';
-  return 'blue';
-}
+    function getComboColor(type) {
+      if (type === '大单') return 'green';
+      if (type === '小单') return 'gray';
+      if (type === '大双') return 'red';
+      return 'blue';
+    }
+
+    function checkComboAlerts(arr) {
+      const alerts = [];
+      if (isSingleComboFrog(arr)) alerts.push('单组合青蛙跳');
+      if (isFourColorCycle(arr)) alerts.push('四色牌');
+      if (isColdCombo(arr)) alerts.push('单组合冷门');
+      return alerts;
+    }
+
+    function isSingleComboFrog(arr) {
+      if (arr.length < 6) return false;
+      const types = arr.map(d => getComboType(d));
+      let maxStreak = 1, cur = 1;
+      for (let i = 1; i < types.length; i++) {
+        if (types[i] === types[i-1]) {
+          cur++;
+          maxStreak = Math.max(maxStreak, cur);
+        } else cur = 1;
+      }
+      return maxStreak <= 4;
+    }
+
+    function isFourColorCycle(arr) {
+      if (arr.length < 4) return false;
+      const types = arr.slice(-8).map(d => getComboType(d));
+      const cycles = [
+        ['大单','小单','小双','大双'],
+        ['小单','小双','大双','大单'],
+        ['小双','大双','大单','小单'],
+        ['大双','大单','小单','小双']
+      ];
+      for (const cycle of cycles) {
+        let match = true;
+        for (let i = 0; i < Math.min(types.length, cycle.length); i++) {
+          if (types[types.length - 1 - i] !== cycle[i]) {
+            match = false;
+            break;
+          }
+        }
+        if (match) return true;
+      }
+      return false;
+    }
+
+    function isColdCombo(arr) {
+      const recent = arr.slice(-30);
+      const count = { '大单': 0, '小单': 0, '大双': 0, '小双': 0 };
+      recent.forEach(d => count[getComboType(d)]++);
+      return Object.values(count).some(c => (30 - c) > 10);
+    }
   </script>
 </body>
 </html>
