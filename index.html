@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -173,7 +174,6 @@
       } else {
         resultDiv.innerHTML = '<div class="no-pattern">功能开发中，敬请期待</div>';
       }
-
       target.after(resultDiv);
     }
 
@@ -215,7 +215,7 @@
 
     function isPatternMatched(id) {
       if (!draws.length) return false;
-      const recent = getRecent(30);
+      const recent = getRecent(40);
       if (id === 'frog') return isFrogJump(recent);
       if (id === '2f1t') return isHouseHall(recent, 2, 1);
       if (id === '3f1t') return isHouseHall(recent, 3, 1);
@@ -240,7 +240,7 @@
       const next = targetItem.nextElementSibling;
       if (next?.classList.contains('inline-result')) { next.remove(); return; }
 
-      const recent = getRecent(30);
+      const recent = getRecent(40);
       let matched = false;
       const displayData = getRecent(20);
 
@@ -263,49 +263,87 @@
       targetItem.after(resultDiv);
     }
 
+    // ==================== 修复后的规律判断函数 ====================
+
     function isFrogJump(arr) {
-      if (arr.length < 4) return false;
-      const last = arr.slice(-6);
-      let bigJump = true, oddJump = true;
-      for (let i = 1; i < last.length; i++) {
-        if (last[i].big === last[i-1].big) bigJump = false;
-        if (last[i].odd === last[i-1].odd) oddJump = false;
+      if (arr.length < 5) return false;
+      const last = arr.slice(-10);
+      function checkAlt(key) {
+        let count = 0;
+        for (let i = 1; i < last.length; i++) {
+          if (last[i][key] !== last[i-1][key]) count++;
+          else return false;
+        }
+        return count >= 3;
       }
-      return bigJump || oddJump;
+      return checkAlt('big') || checkAlt('odd');
     }
 
     function isHouseHall(arr, house, hall) {
-      const need = (house + hall) * 2;
+      const unit = house + hall;
+      const need = Math.ceil(unit * 2.5); // 至少两次半
       if (arr.length < need) return false;
       const last = arr.slice(-need);
-      function getGroups(key) {
+
+      function checkPattern(key) {
         const groups = [];
         let prev = null, cnt = 0;
         for (const d of last) {
           const v = !!d[key];
           if (v === prev) cnt++;
-          else { if (prev !== null) groups.push(cnt); prev = v; cnt = 1; }
+          else {
+            if (prev !== null) groups.push(cnt);
+            prev = v;
+            cnt = 1;
+          }
         }
         if (prev !== null) groups.push(cnt);
-        return groups;
+
+        // 检查是否符合 house, hall, house 重复
+        if (groups.length < 5) return false;
+        for (let i = 0; i <= groups.length - 5; i++) {
+          if (groups[i] === house && groups[i+1] === hall &&
+              groups[i+2] === house && groups[i+3] === hall &&
+              groups[i+4] >= house) {
+            return true;
+          }
+        }
+        return false;
       }
-      const check = g => g.length === 4 && g[0] === house && g[1] === hall && g[2] === house && g[3] === hall;
-      return check(getGroups('big')) || check(getGroups('odd'));
+      return checkPattern('big') || checkPattern('odd');
     }
 
     function isDragon(arr, count) {
       if (arr.length < count) return false;
+      const recent = arr.slice(-20);
+
+      // 六小龙：近20期内出现过 >=6 连续
+      if (count === 6) {
+        let max = 1, cur = 1;
+        for (let i = 1; i < recent.length; i++) {
+          if (recent[i].big === recent[i-1].big || recent[i].odd === recent[i-1].odd) {
+            cur++;
+            max = Math.max(max, cur);
+          } else cur = 1;
+        }
+        return max >= 6;
+      }
+
+      // 四小龙 / 五小龙：当前结尾是 count 个相同，且后面没有更长
       const last = arr[arr.length - 1];
-      let bs = 1;
+      let streak = 1;
       for (let i = arr.length - 2; i >= 0; i--) {
-        if (arr[i].big === last.big) bs++; else break;
+        if (arr[i].big === last.big) streak++;
+        else break;
       }
-      if (bs >= count) return true;
-      let oe = 1;
+      if (streak === count) return true;
+
+      streak = 1;
       for (let i = arr.length - 2; i >= 0; i--) {
-        if (arr[i].odd === last.odd) oe++; else break;
+        if (arr[i].odd === last.odd) streak++;
+        else break;
       }
-      return oe >= count;
+      return streak === count;
     }
 
     function renderTrend(arr) {
@@ -354,7 +392,7 @@
       return html + '</div>';
     }
 
-   function renderComboGrid(arr) {
+    function renderComboGrid(arr) {
   if (!arr.length) return '<div class="no-pattern">暂无数据</div>';
   let html = '<div style="display:grid; grid-template-columns:repeat(10, 34px); gap:6px; justify-content:center; margin:0 auto;">';
   arr.forEach(d => {
@@ -362,27 +400,26 @@
     const color = getComboColor(type);
     html += `<div class="trend-item ${color}">${type}</div>`;
   });
-  // 最后一行：10个白色圆球
   for (let i = 0; i < 10; i++) {
-    html += `<div class="trend-item" style="background:#ffffff; border:1px solid #ddd; color:#ccc;"></div>`;
+    html += `<div class="trend-item" style="background:#ffffff; border:1px solid #ddd;"></div>`;
   }
   html += '</div>';
   return html;
 }
 
-    function getComboType(d) {
-      if (d.big && d.odd) return '大单';
-      if (d.big && !d.odd) return '大双';
-      if (!d.big && d.odd) return '小单';
-      return '小双';
-    }
+function getComboType(d) {
+  if (d.big && d.odd) return '大单';
+  if (d.big && !d.odd) return '大双';
+  if (!d.big && d.odd) return '小单';
+  return '小双';
+}
 
-    function getComboColor(type) {
-      if (type === '大单') return 'green';
-      if (type === '小单') return 'gray';
-      if (type === '大双') return 'red';
-      return 'blue';
-    }
+function getComboColor(type) {
+  if (type === '大单') return 'green';
+  if (type === '小单') return 'gray';
+  if (type === '大双') return 'red';
+  return 'blue';
+}
   </script>
 </body>
 </html>
