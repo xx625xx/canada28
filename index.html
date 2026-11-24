@@ -235,12 +235,18 @@
         renderIntermediateList();
         loadData(false);
         if (refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(() => loadData(false), 30000);
+       refreshTimer = setInterval(async () => {
+  await loadData(false);
+  renderIntermediateList();
+}, 30000);
       } else if (level === 'advanced') {
         renderAdvancedList();
         loadData(false);
         if (refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(() => loadData(false), 30000);
+        refreshTimer = setInterval(async () => {
+  await loadData(false);
+  renderAdvancedList();
+}, 30000);
       }
     }
 
