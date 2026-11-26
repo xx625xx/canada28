@@ -758,12 +758,41 @@
   // 某个组合近30期出现次数 ≤ 15 才算冷门（冷门超过15期）
   return Object.values(count).some(c => c <= 15);
 }
-    function renderDigitSizeGrid(arr, pos) {
-  return '<p style="text-align:center;color:#888;padding:20px;">大小百宫格开发中</p>';
+  function renderDigitSizeGrid(arr, pos) {
+  if (!arr.length) return '';
+  let html = '<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:400px;margin:0 auto;">';
+  arr.forEach(d => {
+    const num = d[pos] || 0;
+    const isBig = num >= 5;
+    const color = isBig ? '#e53935' : '#1e88e5';
+    const text = isBig ? '大' : '小';
+    html += `<div style="width:36px;height:36px;border-radius:50%;background:${color};color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;">${text}</div>`;
+  });
+  // 补空白到10的倍数，模拟百宫格
+  const remain = (10 - (arr.length % 10)) % 10;
+  for (let i = 0; i < remain; i++) {
+    html += `<div style="width:36px;height:36px;border-radius:50%;background:#eee;"></div>`;
+  }
+  html += '</div>';
+  return html;
 }
 
 function renderDigitOddEvenGrid(arr, pos) {
-  return '<p style="text-align:center;color:#888;padding:20px;">单双百宫格开发中</p>';
+  if (!arr.length) return '';
+  let html = '<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:400px;margin:0 auto;">';
+  arr.forEach(d => {
+    const num = d[pos] || 0;
+    const isOdd = num % 2 === 1;
+    const color = isOdd ? '#e53935' : '#1e88e5';
+    const text = isOdd ? '单' : '双';
+    html += `<div style="width:36px;height:36px;border-radius:50%;background:${color};color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;">${text}</div>`;
+  });
+  const remain = (10 - (arr.length % 10)) % 10;
+  for (let i = 0; i < remain; i++) {
+    html += `<div style="width:36px;height:36px;border-radius:50%;background:#eee;"></div>`;
+  }
+  html += '</div>';
+  return html;
 }
     }
   </script>
