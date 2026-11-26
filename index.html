@@ -188,6 +188,7 @@
 
     let draws = [];
     let refreshTimer = null;
+    let currentIntermediateId = null;
 
     const beginnerPatterns = [
       { id: 'frog', name: '青蛙跳规律看板' },
@@ -235,9 +236,13 @@
         renderIntermediateList();
         loadData(false);
         if (refreshTimer) clearInterval(refreshTimer);
-       refreshTimer = setInterval(async () => {
+refreshTimer = setInterval(async () => {
   await loadData(false);
-  renderIntermediateList();
+  if (currentIntermediateId) {
+    openIntermediateItem(currentIntermediateId);
+  } else {
+    renderIntermediateList();
+  }
 }, 30000);
       } else if (level === 'advanced') {
         renderAdvancedList();
@@ -257,7 +262,8 @@
     }
 
     function renderIntermediateList() {
-      const list = document.getElementById('intermediate-list');
+  currentIntermediateId = null;
+  const list = document.getElementById('intermediate-list');
       list.innerHTML = intermediateItems.map(item =>
         `<div class="pattern-item" onclick="openIntermediateItem('${item.id}')">${item.name} <span>›</span></div>`
       ).join('');
@@ -270,7 +276,8 @@
   ).join('') + `<div class="pattern-item" onclick="showMenu()" style="background:#eee;margin-top:16px;">← 返回主界面</div>`;
 }
 
-    function openIntermediateItem(id) {
+   function openIntermediateItem(id) {
+  currentIntermediateId = id;
   clearInlineResults();
   const list = document.getElementById('intermediate-list');
   if (id === 'combo') {
