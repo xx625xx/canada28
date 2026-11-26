@@ -189,6 +189,7 @@
     let draws = [];
     let refreshTimer = null;
     let currentIntermediateId = null;
+    let currentAdvancedId = null;
 
     const beginnerPatterns = [
       { id: 'frog', name: '青蛙跳规律看板' },
@@ -209,13 +210,19 @@
       { id: 'shape', name: '对子顺子豹子走势规律研判' }
     ];
 
-    const advancedItems = [
-      { id: 'n1', name: '百位数规律' },
-      { id: 'n2', name: '十位数规律' },
-      { id: 'n3', name: '个位数规律' },
-      { id: 'mod3', name: '和值除以3余数' },
-      { id: 'mod4', name: '和值除以4余数' }
-    ];
+  const advancedItems = [
+  { id: 'n1-1', name: '百位数规律一' },
+  { id: 'n1-2', name: '百位数规律二' },
+  { id: 'n1-3', name: '百位数规律三' },
+  { id: 'n2-1', name: '十位数规律一' },
+  { id: 'n2-2', name: '十位数规律二' },
+  { id: 'n2-3', name: '十位数规律三' },
+  { id: 'n3-1', name: '个位数规律一' },
+  { id: 'n3-2', name: '个位数规律二' },
+  { id: 'n3-3', name: '个位数规律三' },
+  { id: 'mod3', name: '和值除以3余数' },
+  { id: 'mod4', name: '和值除以4余数' }
+];
 
     const comboSubItems = [
       { id: 'road', name: '路子图' },
@@ -248,12 +255,14 @@ refreshTimer = setInterval(async () => {
         renderAdvancedList();
         loadData(false);
         if (refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(async () => {
+       refreshTimer = setInterval(async () => {
   await loadData(false);
-  renderAdvancedList();
+  if (currentAdvancedId) {
+    openAdvancedItem(currentAdvancedId);
+  } else {
+    renderAdvancedList();
+  }
 }, 30000);
-      }
-    }
 
     function backToMenu() {
       if (refreshTimer) clearInterval(refreshTimer);
@@ -269,7 +278,8 @@ refreshTimer = setInterval(async () => {
       ).join('');
     }
 
-    function renderAdvancedList() {
+  function renderAdvancedList() {
+  currentAdvancedId = null;
   const list = document.getElementById('advanced-list');
   list.innerHTML = advancedItems.map(item =>
     `<div class="pattern-item" onclick="openAdvancedItem('${item.id}')">${item.name} <span>›</span></div>`
@@ -301,30 +311,52 @@ refreshTimer = setInterval(async () => {
   }
 }
 
-    function openAdvancedItem(id) {
-      clearInlineResults();
-      const list = document.getElementById('advanced-list');
-      const recent = getRecent(90);
-      let title = '';
-      let html = '';
-      if (id === 'n1') {
-        title = '近90期百位数百宫格';
-        html = renderDigitGrid(recent, 'n1');
-      } else if (id === 'n2') {
-        title = '近90期十位数百宫格';
-        html = renderDigitGrid(recent, 'n2');
-      } else if (id === 'n3') {
-        title = '近90期个位数百宫格';
-        html = renderDigitGrid(recent, 'n3');
-      } else if (id === 'mod3') {
-        title = '近90期和值除以3余数';
-        html = renderModGrid(recent, 3);
-      } else if (id === 'mod4') {
-        title = '近90期和值除以4余数';
-        html = renderModGrid(recent, 4);
-      }
-      list.innerHTML = `<div style="text-align:center;margin:12px 0;font-weight:bold;">${title}</div>` + html;
-    }
+  function openAdvancedItem(id) {
+  currentAdvancedId = id;
+  clearInlineResults();
+  const list = document.getElementById('advanced-list');
+  const recent = getRecent(90);
+  let title = '';
+  let html = '';
+
+  if (id === 'n1-1') {
+    title = '近90期百位数数字百宫格';
+    html = renderDigitGrid(recent, 'n1');
+  } else if (id === 'n1-2') {
+    title = '近90期百位数大小百宫格（0-4小 5-9大）';
+    html = renderDigitSizeGrid(recent, 'n1');
+  } else if (id === 'n1-3') {
+    title = '近90期百位数单双百宫格';
+    html = renderDigitOddEvenGrid(recent, 'n1');
+  } else if (id === 'n2-1') {
+    title = '近90期十位数数字百宫格';
+    html = renderDigitGrid(recent, 'n2');
+  } else if (id === 'n2-2') {
+    title = '近90期十位数大小百宫格（0-4小 5-9大）';
+    html = renderDigitSizeGrid(recent, 'n2');
+  } else if (id === 'n2-3') {
+    title = '近90期十位数单双百宫格';
+    html = renderDigitOddEvenGrid(recent, 'n2');
+  } else if (id === 'n3-1') {
+    title = '近90期个位数数字百宫格';
+    html = renderDigitGrid(recent, 'n3');
+  } else if (id === 'n3-2') {
+    title = '近90期个位数大小百宫格（0-4小 5-9大）';
+    html = renderDigitSizeGrid(recent, 'n3');
+  } else if (id === 'n3-3') {
+    title = '近90期个位数单双百宫格';
+    html = renderDigitOddEvenGrid(recent, 'n3');
+  } else if (id === 'mod3') {
+    title = '近90期和值除以3余数';
+    html = renderModGrid(recent, 3);
+  } else if (id === 'mod4') {
+    title = '近90期和值除以4余数';
+    html = renderModGrid(recent, 4);
+  }
+
+  list.innerHTML = `<div style="text-align:center;margin:12px 0;font-weight:bold;">${title}</div>` + html +
+    `<div class="pattern-item" onclick="renderAdvancedList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>`;
+}
 
     function openComboSub(subId) {
       clearInlineResults();
@@ -723,6 +755,13 @@ refreshTimer = setInterval(async () => {
   });
   // 某个组合近30期出现次数 ≤ 15 才算冷门（冷门超过15期）
   return Object.values(count).some(c => c <= 15);
+}
+    function renderDigitSizeGrid(arr, pos) {
+  return '<p style="text-align:center;color:#888;padding:20px;">大小百宫格开发中</p>';
+}
+
+function renderDigitOddEvenGrid(arr, pos) {
+  return '<p style="text-align:center;color:#888;padding:20px;">单双百宫格开发中</p>';
 }
   </script>
 </body>
