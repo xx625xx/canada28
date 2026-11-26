@@ -240,29 +240,30 @@
         if (refreshTimer) clearInterval(refreshTimer);
         refreshTimer = setInterval(() => loadData(true), 30000);
       } else if (level === 'intermediate') {
-        renderIntermediateList();
-        loadData(false);
-        if (refreshTimer) clearInterval(refreshTimer);
-refreshTimer = setInterval(async () => {
-  await loadData(false);
-  if (currentIntermediateId) {
-    openIntermediateItem(currentIntermediateId);
-  } else {
-    renderIntermediateList();
-  }
-}, 30000);
-      } else if (level === 'advanced') {
-        renderAdvancedList();
-        loadData(false);
-        if (refreshTimer) clearInterval(refreshTimer);
-       refreshTimer = setInterval(async () => {
-  await loadData(false);
-  if (currentAdvancedId) {
-    openAdvancedItem(currentAdvancedId);
-  } else {
-    renderAdvancedList();
-  }
-}, 30000);
+  renderIntermediateList();
+  loadData(false);
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(async () => {
+    await loadData(false);
+    if (currentIntermediateId) {
+      openIntermediateItem(currentIntermediateId);
+    } else {
+      renderIntermediateList();
+    }
+  }, 30000);
+} else if (level === 'advanced') {
+  renderAdvancedList();
+  loadData(false);
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(async () => {
+    await loadData(false);
+    if (currentAdvancedId) {
+      openAdvancedItem(currentAdvancedId);
+    } else {
+      renderAdvancedList();
+    }
+  }, 30000);
+}
 
     function backToMenu() {
       if (refreshTimer) clearInterval(refreshTimer);
