@@ -848,21 +848,17 @@ async function loadMarkSixHistory() {
       const match = str.match(/(\d+\/\d+)[：:]\s*(.+)/);
       if (!match) return;
       const issue = match[1];
-      const numStr = match[2].trim();
-      const nums = numStr.split(/\s+/);
-      html += `
-        <div class="game-card" style="margin-bottom:10px;">
-          <div style="font-size:13px;color:#666;">第 ${issue} 期</div>
-          <div style="margin-top:6px;font-size:16px;font-weight:bold;">
-            ${nums.slice(0,6).join(' ')} <span style="color:#e53935;">+ ${nums[6] || ''}</span>
-          </div>
-        </div>`;
+      const nums = match[2].trim().split(/\s+/);
+      html += '<div class="game-card" style="margin-bottom:10px;">';
+      html += '<div style="font-size:13px;color:#666;">第 ' + issue + ' 期</div>';
+      html += '<div style="margin-top:6px;font-size:16px;font-weight:bold;">';
+      html += nums.slice(0,6).join(' ') + ' <span style="color:#e53935;">+ ' + (nums[6] || '') + '</span>';
+      html += '</div></div>';
     });
-    html += `<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>`;
+    html += '<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>';
     list.innerHTML = html;
   } catch (e) {
-    list.innerHTML = '<p style="text-align:center;color:red;">加载失败</p>' +
-      `<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>`;
+    list.innerHTML = '<p style="text-align:center;color:red;">加载失败</p><div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>';
   }
 }
   </script>
