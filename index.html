@@ -825,13 +825,17 @@ function renderMarkSixList() {
 let mockMarkSixData = [];
 
 async function loadMarkSixData() {
+  console.log('开始加载六合彩数据');
   try {
     const res = await fetch('https://www.hkmark6.net/api/history?page_size=90');
+    console.log('请求成功', res);
     const json = await res.json();
+    console.log('解析成功', json);
     mockMarkSixData = (json.data || []).map(item => ({
       issue: item.draw_number,
       nums: [item.num1, item.num2, item.num3, item.num4, item.num5, item.num6, item.special_number]
     }));
+    console.log('数据已加载', mockMarkSixData.length);
   } catch (e) {
     console.error('加载失败', e);
     mockMarkSixData = generateMockMarkSix(90);
