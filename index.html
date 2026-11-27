@@ -836,29 +836,28 @@ function openMarkSixItem(id) {
 async function loadMarkSixHistory() {
   const list = document.getElementById('marksix-list');
   try {
-   const res = await fetch('https://marksix6.net/index.php?api=1');
-   const data = await res.json();
-const hk = data.lottery_data?.find(item => item.name.includes('香港') || item.name.includes('HK'));
-if (!hk || !hk.history) {
-  list.innerHTML = '<p style="text-align:center;">暂无数据</p>';
-  return;
-}
-let html = '<div style="text-align:center;margin:12px 0;font-weight:bold;">最近开奖记录</div>';
-hk.history.slice(0, 20).forEach(str => {
-  const match = str.match(/(\d+\/\d+)[：:]\s*(.+)/);
-if (!match) return;
-const issue = match[1];
-const numStr = match[2].trim();
-const nums = numStr.split(/\s+/);
-html += `
-  <div class="game-card" style="margin-bottom:10px;">
-    <div style="font-size:13px;color:#666;">第 ${issue} 期</div>
-    <div style="margin-top:6px;font-size:16px;font-weight:bold;">
-      ${nums.slice(0,6).join(' ')} <span style="color:#e53935;">+ ${nums[6] || ''}</span>
-    </div>
-  </div>`;
-});
-});
+    const res = await fetch('https://marksix6.net/index.php?api=1');
+    const data = await res.json();
+    const hk = data.lottery_data?.find(item => item.name.includes('香港') || item.name.includes('HK'));
+    if (!hk || !hk.history) {
+      list.innerHTML = '<p style="text-align:center;">暂无数据</p>';
+      return;
+    }
+    let html = '<div style="text-align:center;margin:12px 0;font-weight:bold;">最近开奖记录</div>';
+    hk.history.slice(0, 20).forEach(str => {
+      const match = str.match(/(\d+\/\d+)[：:]\s*(.+)/);
+      if (!match) return;
+      const issue = match[1];
+      const numStr = match[2].trim();
+      const nums = numStr.split(/\s+/);
+      html += `
+        <div class="game-card" style="margin-bottom:10px;">
+          <div style="font-size:13px;color:#666;">第 ${issue} 期</div>
+          <div style="margin-top:6px;font-size:16px;font-weight:bold;">
+            ${nums.slice(0,6).join(' ')} <span style="color:#e53935;">+ ${nums[6] || ''}</span>
+          </div>
+        </div>`;
+    });
     html += `<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>`;
     list.innerHTML = html;
   } catch (e) {
