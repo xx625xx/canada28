@@ -822,7 +822,22 @@ function renderMarkSixList() {
   ).join('') + `<div class="pattern-item" onclick="backToMenu()" style="background:#eee;margin-top:16px;">← 返回主界面</div>`;
 }
 
-// 生成90期模拟数据
+let mockMarkSixData = [];
+
+async function loadMarkSixData() {
+  try {
+    const res = await fetch('http://147.160.52.128:8080/marksix');
+    const data = await res.json();
+    mockMarkSixData = data.map(item => ({
+      issue: item.issue,
+      nums: item.numbers
+    }));
+  } catch (e) {
+    console.error('加载失败', e);
+    mockMarkSixData = generateMockMarkSix(90);
+  }
+}
+
 function generateMockMarkSix(count = 90) {
   const data = [];
   for (let i = 0; i < count; i++) {
@@ -838,17 +853,17 @@ function generateMockMarkSix(count = 90) {
       nums: [...nums, special]
     });
   }
-  return data.reverse(); // 最新在前
+  return data.reverse();
 }
 
-let mockMarkSixData = generateMockMarkSix(90);
+loadMarkSixData();
 
-function openMarkSixItem(id) {
+async function openMarkSixItem(id) {
+  if (mockMarkSixData.length === 0) await loadMarkSixData();
   const list = document.getElementById('marksix-list');
   list.innerHTML = '<div style="text-align:center;padding:20px;">加载中...</div>';
-  
+
   if (id === 'history') {
-    renderMarkSixHistory();
   } else if (id === 'size') {
     renderMarkSixGrid('size');
   } else if (id === 'odd') {
