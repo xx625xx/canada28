@@ -822,28 +822,56 @@ function renderMarkSixList() {
   ).join('') + `<div class="pattern-item" onclick="backToMenu()" style="background:#eee;margin-top:16px;">← 返回主界面</div>`;
 }
 
+// 生成90期模拟数据
+function generateMockMarkSix(count = 90) {
+  const data = [];
+  for (let i = 0; i < count; i++) {
+    const nums = [];
+    while (nums.length < 6) {
+      const n = Math.floor(Math.random() * 49) + 1;
+      if (!nums.includes(n)) nums.push(n);
+    }
+    nums.sort((a, b) => a - b);
+    const special = Math.floor(Math.random() * 49) + 1;
+    data.push({
+      issue: `26/${124 - i}`,
+      nums: [...nums, special]
+    });
+  }
+  return data.reverse(); // 最新在前
+}
+
+let mockMarkSixData = generateMockMarkSix(90);
+
 function openMarkSixItem(id) {
   const list = document.getElementById('marksix-list');
+  list.innerHTML = '<div style="text-align:center;padding:20px;">加载中...</div>';
+  
   if (id === 'history') {
-    list.innerHTML = '<div style="text-align:center;padding:20px;">加载中...</div>';
-    loadMarkSixHistory();
+    renderMarkSixHistory();
+  } else if (id === 'size') {
+    renderMarkSixGrid('size');
+  } else if (id === 'odd') {
+    renderMarkSixGrid('odd');
+  } else if (id === 'tail') {
+    renderMarkSixGrid('tail');
+  } else if (id === 'sumodd') {
+    renderMarkSixGrid('sumodd');
+  } else if (id === 'color') {
+    renderMarkSixGrid('color');
+  } else if (id === 'zodiac') {
+    renderMarkSixGrid('zodiac');
+  } else if (id === 'wuxing') {
+    renderMarkSixGrid('wuxing');
   } else {
-    list.innerHTML = `<div style="text-align:center;padding:40px;color:#888;">${id} 功能开发中</div>` +
-      `<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>`;
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">功能开发中</div>';
   }
 }
 
-async function loadMarkSixHistory() {
+function renderMarkSixHistory() {
   const list = document.getElementById('marksix-list');
   let html = '<div style="text-align:center;margin:12px 0;font-weight:bold;">最近开奖记录（模拟数据）</div>';
-  const mock = [
-    { issue: '26/124', nums: ['12','25','33','41','47','49','36'] },
-    { issue: '26/123', nums: ['05','18','22','29','35','44','41'] },
-    { issue: '26/122', nums: ['03','11','19','27','38','45','36'] },
-    { issue: '26/121', nums: ['08','15','23','31','39','46','48'] },
-    { issue: '26/120', nums: ['02','14','20','28','34','42','13'] }
-  ];
-  mock.forEach(item => {
+  mockMarkSixData.slice(0, 20).forEach(item => {
     html += '<div class="game-card" style="margin-bottom:10px;">';
     html += '<div style="font-size:13px;color:#666;">第 ' + item.issue + ' 期</div>';
     html += '<div style="margin-top:6px;font-size:16px;font-weight:bold;">';
@@ -852,6 +880,61 @@ async function loadMarkSixHistory() {
   });
   html += '<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>';
   list.innerHTML = html;
+}
+
+function renderMarkSixGrid(type) {
+  const list = document.getElementById('marksix-list');
+  const titles = {
+    size: '大小规律百宫格',
+    odd: '单双规律百宫格',
+    tail: '尾数规律百宫格',
+    sumodd: '合数单双规律百宫格',
+    color: '波色规律百宫格',
+    zodiac: '生肖规律百宫格',
+    wuxing: '五行规律百宫格'
+  };
+  let html = `<div style="text-align:center;margin:12px 0;font-weight:bold;">${titles[type]}（近90期）</div>`;
+  html += renderGridByType(mockMarkSixData, type);
+  html += '<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>';
+  list.innerHTML = html;
+}
+
+function renderGridByType(data, type) {
+  let html = '<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:420px;margin:0 auto;">';
+  data.forEach(item => {
+    const special = item.nums[6];
+    let text = '', color = '#888';
+    if (type === 'size') {
+      text = special >= 25 ? '大' : '小';
+      color = special >= 25 ? '#e53935' : '#1e88e5';
+    } else if (type === 'odd') {
+      text = special % 2 === 1 ? '单' : '双';
+      color = special % 2 === 1 ? '#e53935' : '#1e88e5';
+    } else if (type === 'tail') {
+      text = special % 10;
+      color = '#43a047';
+    } else if (type === 'sumodd') {
+      const sum = item.nums.reduce((a, b) => a + b, 0);
+      text = sum % 2 === 1 ? '单' : '双';
+      color = sum % 2 === 1 ? '#e53935' : '#1e88e5';
+    } else if (type === 'color') {
+      const colors = { red: '#e53935', blue: '#1e88e5', green: '#43a047' };
+      const c = special % 3 === 0 ? 'green' : special % 3 === 1 ? 'red' : 'blue';
+      text = c === 'red' ? '红' : c === 'blue' ? '蓝' : '绿';
+      color = colors[c];
+    } else if (type === 'zodiac') {
+      const zodiacs = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+      text = zodiacs[special % 12];
+      color = '#8e24aa';
+    } else if (type === 'wuxing') {
+      const wuxing = ['金','木','水','火','土'];
+      text = wuxing[special % 5];
+      color = '#fb8c00';
+    }
+    html += `<div style="width:36px;height:36px;border-radius:50%;background:${color};color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;">${text}</div>`;
+  });
+  html += '</div>';
+  return html;
 }
   </script>
 </body>
