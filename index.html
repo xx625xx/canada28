@@ -271,7 +271,8 @@
         renderAdvancedList();
       }
     }, 30000);
-  }
+} else if (level === 'marksix') {
+  renderMarkSixList();
 }
 
     function backToMenu() {
@@ -801,6 +802,29 @@ function renderDigitOddEvenGrid(arr, pos) {
   }
   html += '</div>';
   return html;
+}
+      const markSixItems = [
+  { id: 'history', name: '历史开奖数据' },
+  { id: 'size', name: '大小规律' },
+  { id: 'odd', name: '单双规律' },
+  { id: 'tail', name: '尾数规律' },
+  { id: 'sumodd', name: '合数单双规律' },
+  { id: 'color', name: '波色规律' },
+  { id: 'zodiac', name: '生肖规律' },
+  { id: 'wuxing', name: '五行规律' }
+];
+
+function renderMarkSixList() {
+  const list = document.getElementById('marksix-list');
+  list.innerHTML = markSixItems.map(item =>
+    `<div class="pattern-item" onclick="openMarkSixItem('${item.id}')">${item.name} <span>›</span></div>`
+  ).join('') + `<div class="pattern-item" onclick="backToMenu()" style="background:#eee;margin-top:16px;">← 返回主界面</div>`;
+}
+
+function openMarkSixItem(id) {
+  const list = document.getElementById('marksix-list');
+  list.innerHTML = `<div style="text-align:center;padding:40px;color:#888;">${id} 功能开发中</div>` +
+    `<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>`;
 }
   </script>
 </body>
