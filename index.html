@@ -827,10 +827,10 @@ let mockMarkSixData = [];
 async function loadMarkSixData() {
   try {
     const res = await fetch('https://www.hkmark6.net/api/history?page_size=90');
-    const data = await res.json();
-    mockMarkSixData = data.map(item => ({
-      issue: item.issue,
-      nums: item.numbers
+    const json = await res.json();
+    mockMarkSixData = (json.data || []).map(item => ({
+      issue: item.draw_number,
+      nums: [item.num1, item.num2, item.num3, item.num4, item.num5, item.num6, item.special_number]
     }));
   } catch (e) {
     console.error('加载失败', e);
