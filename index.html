@@ -836,24 +836,25 @@ function openMarkSixItem(id) {
 async function loadMarkSixHistory() {
   const list = document.getElementById('marksix-list');
   try {
-    const res = await fetch('https://1680660.com/smallSix/findSmallSixHistory.do?lotCode=10048&type=1');
+   const res = await fetch('https://www.hkmark6.net/api/history?periods=30');
     const data = await res.json();
-    if (!data.result || !data.result.data) {
-      list.innerHTML = '<p style="text-align:center;">暂无数据</p>';
-      return;
-    }
-    let html = '<div style="text-align:center;margin:12px 0;font-weight:bold;">最近开奖记录</div>';
-    data.result.data.slice(0, 20).forEach(item => {
-      const nums = item.preDrawCode.split(',');
-      html += `
-        <div class="game-card" style="margin-bottom:10px;">
-          <div style="font-size:13px;color:#666;">第 ${item.preDrawIssue} 期</div>
-          <div style="margin-top:6px;font-size:16px;font-weight:bold;">
-            ${nums.slice(0,6).join(' ')} <span style="color:#e53935;">+ ${nums[6]}</span>
-          </div>
-          <div style="font-size:12px;color:#999;margin-top:4px;">${item.preDrawTime}</div>
-        </div>`;
-    });
+    if (!data.data || data.data.length === 0) {
+  list.innerHTML = '<p style="text-align:center;">暂无数据</p>';
+  return;
+}
+let html = '<div style="text-align:center;margin:12px 0;font-weight:bold;">最近开奖记录</div>';
+data.data.slice(0, 20).forEach(item => {
+  const nums = item.numbers || [];
+  const special = item.special_number || '';
+  html += `
+    <div class="game-card" style="margin-bottom:10px;">
+      <div style="font-size:13px;color:#666;">第 ${item.draw_number} 期</div>
+      <div style="margin-top:6px;font-size:16px;font-weight:bold;">
+        ${nums.join(' ')} <span style="color:#e53935;">+ ${special}</span>
+      </div>
+      <div style="font-size:12px;color:#999;margin-top:4px;">${item.draw_date}</div>
+    </div>`;
+});
     html += `<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>`;
     list.innerHTML = html;
   } catch (e) {
