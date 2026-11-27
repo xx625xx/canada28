@@ -826,7 +826,7 @@ let mockMarkSixData = [];
 
 async function loadMarkSixData() {
   try {
-    const res = await fetch('http://147.160.52.128:8080/marksix');
+    const res = await fetch('https://www.hkmark6.net/api/history?page_size=90');
     const data = await res.json();
     mockMarkSixData = data.map(item => ({
       issue: item.issue,
