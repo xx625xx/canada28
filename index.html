@@ -849,11 +849,15 @@ function generateMockMarkSix(count = 90) {
 loadMarkSixData();
 
 async function openMarkSixItem(id) {
-  if (mockMarkSixData.length === 0) await loadMarkSixData();
   const list = document.getElementById('marksix-list');
   list.innerHTML = '<div style="text-align:center;padding:20px;">加载中...</div>';
+  
+  if (mockMarkSixData.length === 0) {
+    await loadMarkSixData();
+  }
 
   if (id === 'history') {
+    renderMarkSixHistory();
   } else if (id === 'size') {
     renderMarkSixGrid('size');
   } else if (id === 'odd') {
