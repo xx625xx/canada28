@@ -835,31 +835,23 @@ function openMarkSixItem(id) {
 
 async function loadMarkSixHistory() {
   const list = document.getElementById('marksix-list');
-  try {
-    const res = await fetch('https://marksix6.net/index.php?api=1');
-    const data = await res.json();
-    const hk = data.lottery_data?.find(item => item.name.includes('香港') || item.name.includes('HK'));
-    if (!hk || !hk.history) {
-      list.innerHTML = '<p style="text-align:center;">暂无数据</p>';
-      return;
-    }
-    let html = '<div style="text-align:center;margin:12px 0;font-weight:bold;">最近开奖记录</div>';
-    hk.history.slice(0, 20).forEach(str => {
-      const match = str.match(/(\d+\/\d+)[：:]\s*(.+)/);
-      if (!match) return;
-      const issue = match[1];
-      const nums = match[2].trim().split(/\s+/);
-      html += '<div class="game-card" style="margin-bottom:10px;">';
-      html += '<div style="font-size:13px;color:#666;">第 ' + issue + ' 期</div>';
-      html += '<div style="margin-top:6px;font-size:16px;font-weight:bold;">';
-      html += nums.slice(0,6).join(' ') + ' <span style="color:#e53935;">+ ' + (nums[6] || '') + '</span>';
-      html += '</div></div>';
-    });
-    html += '<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>';
-    list.innerHTML = html;
-  } catch (e) {
-    list.innerHTML = '<p style="text-align:center;color:red;">加载失败</p><div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>';
-  }
+  let html = '<div style="text-align:center;margin:12px 0;font-weight:bold;">最近开奖记录（模拟数据）</div>';
+  const mock = [
+    { issue: '26/124', nums: ['12','25','33','41','47','49','36'] },
+    { issue: '26/123', nums: ['05','18','22','29','35','44','41'] },
+    { issue: '26/122', nums: ['03','11','19','27','38','45','36'] },
+    { issue: '26/121', nums: ['08','15','23','31','39','46','48'] },
+    { issue: '26/120', nums: ['02','14','20','28','34','42','13'] }
+  ];
+  mock.forEach(item => {
+    html += '<div class="game-card" style="margin-bottom:10px;">';
+    html += '<div style="font-size:13px;color:#666;">第 ' + item.issue + ' 期</div>';
+    html += '<div style="margin-top:6px;font-size:16px;font-weight:bold;">';
+    html += item.nums.slice(0,6).join(' ') + ' <span style="color:#e53935;">+ ' + item.nums[6] + '</span>';
+    html += '</div></div>';
+  });
+  html += '<div class="pattern-item" onclick="renderMarkSixList()" style="background:#eee;margin-top:16px;">← 返回上一级</div>';
+  list.innerHTML = html;
 }
   </script>
 </body>
